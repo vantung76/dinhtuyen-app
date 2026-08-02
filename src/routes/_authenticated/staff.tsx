@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { sendStaffInvite } from "@/lib/email.functions";
+import { updateStaffMember, deleteStaffMember } from "@/lib/staff.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +21,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 export const Route = createFileRoute("/_authenticated/staff")({
@@ -43,6 +63,7 @@ export const Route = createFileRoute("/_authenticated/staff")({
 type StaffRow = {
   id: string;
   full_name: string | null;
+  phone: string | null;
   email: string | null;
   created_at: string;
   roles: string[];
@@ -98,6 +119,33 @@ function StaffPage() {
       void queryClient.invalidateQueries({ queryKey: ["staff"] });
     },
     onError: (e: Error) => toast.error("Không đổi được quyền", { description: e.message }),
+  });
+
+  const [editing, setEditing] = useState<StaffRow | null>(null);
+  const [editForm, setEditForm] = useState({ fullName: "", phone: "" });
+  const [deleting, setDeleting] = useState<StaffRow | null>(null);
+  const runUpdate = useServerFn(updateStaffMember);
+  const runDelete = useServerFn(deleteStaffMember);
+
+  const updateStaff = useMutation({
+    mutationFn: async () =>
+      runUpdate({ data: { id: editing!.id, fullName: editForm.fullName, phone: editForm.phone } }),
+    onSuccess: () => {
+      toast.success("Đã cập nhật thông tin nhân viên");
+      setEditing(null);
+      void queryClient.invalidateQueries({ queryKey: ["staff"] });
+    },
+    onError: (e: Error) => toast.error("Không cập nhật được", { description: e.message }),
+  });
+
+  const removeStaff = useMutation({
+    mutationFn: async () => runDelete({ data: { id: deleting!.id } }),
+    onSuccess: () => {
+      toast.success("Đã xoá nhân viên khỏi hệ thống");
+      setDeleting(null);
+      void queryClient.invalidateQueries({ queryKey: ["staff"] });
+    },
+    onError: (e: Error) => toast.error("Không xoá được", { description: e.message }),
   });
 
   if (!isAdmin) {
@@ -181,7 +229,7 @@ function StaffPage() {
               <TableHead>Email</TableHead>
               <TableHead>Quyền</TableHead>
               <TableHead>Ngày tham gia</TableHead>
-              <TableHead className="text-right">Đổi quyền</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -207,20 +255,40 @@ function StaffPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">{formatDate(s.created_at)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={isSelf || setRole.isPending}
-                        onClick={() =>
-                          setRole.mutate({
-                            userId: s.id,
-                            role: isUserAdmin ? "staff" : "admin",
-                          })
-                        }
-                      >
-                        {isUserAdmin ? "Chuyển thành Nhân viên" : "Cấp quyền Admin"}
-                      </Button>
+                    <TableCell>
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={isSelf || setRole.isPending}
+                          onClick={() =>
+                            setRole.mutate({
+                              userId: s.id,
+                              role: isUserAdmin ? "staff" : "admin",
+                            })
+                          }
+                        >
+                          {isUserAdmin ? "Chuyển thành Nhân viên" : "Cấp quyền Admin"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => {
+                            setEditing(s);
+                            setEditForm({ fullName: s.full_name ?? "", phone: s.phone ?? "" });
+                          }}
+                        >
+                          <Pencil className="mr-1.5 h-4 w-4" /> Sửa
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={isSelf}
+                          onClick={() => setDeleting(s)}
+                        >
+                          <Trash2 className="mr-1.5 h-4 w-4" /> Xoá
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -229,6 +297,68 @@ function StaffPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sửa thông tin nhân viên</DialogTitle>
+            <DialogDescription>{editing?.email ?? ""}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-name">Họ tên</Label>
+              <Input
+                id="edit-name"
+                value={editForm.fullName}
+                onChange={(e) => setEditForm((f) => ({ ...f, fullName: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-phone">Số điện thoại</Label>
+              <Input
+                id="edit-phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>
+              Huỷ
+            </Button>
+            <Button
+              disabled={updateStaff.isPending || !editForm.fullName.trim()}
+              onClick={() => updateStaff.mutate()}
+            >
+              {updateStaff.isPending ? "Đang lưu…" : "Lưu thay đổi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleting !== null} onOpenChange={(o) => !o && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xoá nhân viên khỏi hệ thống?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tài khoản {deleting?.full_name || deleting?.email} sẽ bị xoá vĩnh viễn và không thể
+              đăng nhập nữa. Dữ liệu hợp đồng/phiếu thu đã tạo vẫn được giữ lại.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={removeStaff.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                removeStaff.mutate();
+              }}
+            >
+              {removeStaff.isPending ? "Đang xoá…" : "Xoá"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
