@@ -6,7 +6,9 @@ import {
   reminderEmail,
   sendResendEmail,
   staffInvitationEmail,
+  welcomeEmail,
 } from "./email.server";
+
 
 type Client = SupabaseClient<Database>;
 
@@ -225,4 +227,30 @@ export async function sendStaffInvite(
   });
   await sendResendEmail({ to: email, subject, html });
   return { sent: true, to: email, role };
+}
+
+export async function sendWelcomeEmail(
+  supabase: Client,
+  userId: string,
+  input: { email: string; fullName?: string; siteUrl?: string },
+) {
+  const email = input.email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Email không hợp lệ");
+
+  const { data: isStaff } = await supabase.rpc("is_staff", { _user_id: userId });
+  const roleLabel = isStaff ? "Nhân viên" : "Khách hàng";
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const fullName = input.fullName?.trim() || profile?.full_name || email.split("@")[0]!;
+  const base = input.siteUrl?.trim() || process.env["PUBLIC_SITE_URL"] || "";
+  const loginUrl = base ? `${base.replace(/\/$/, "")}/auth` : "https://dinhtuyen.com";
+
+  const { subject, html } = welcomeEmail({ fullName, roleLabel, loginUrl });
+  await sendResendEmail({ to: email, subject, html });
+  return { sent: true, to: email };
 }

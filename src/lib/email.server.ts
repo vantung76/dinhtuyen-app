@@ -147,7 +147,27 @@ export function reminderEmail(input: {
   };
 }
 
+export function welcomeEmail(input: {
+  fullName: string;
+  roleLabel: string;
+  loginUrl: string;
+}) {
+  const inner = `
+  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.fullName)}</strong>,<br/>
+  Tài khoản <strong>${escapeHtml(input.roleLabel)}</strong> của bạn tại hệ thống quản lý trả góp máy photocopy — CTY DINHTUYEN đã được kích hoạt thành công.</p>
+  <p style="text-align:center;margin:24px 0">
+    <a href="${escapeHtml(input.loginUrl)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Đăng nhập ngay</a>
+  </p>
+  <p style="font-size:13px;color:#667085;word-break:break-all">Nếu nút không hoạt động, vui lòng mở liên kết sau:<br/>${escapeHtml(input.loginUrl)}</p>
+  <p style="font-size:13px;color:#667085">Mọi thắc mắc xin liên hệ CTY DINHTUYEN — 431 Tô Hiến Thành, Diên Hồng, HCM · 076 9119 919.</p>`;
+  return {
+    subject: "Tài khoản của bạn đã được kích hoạt — CTY DINHTUYEN",
+    html: layout("Chào mừng đến với CTY DINHTUYEN", inner),
+  };
+}
+
 export function staffInvitationEmail(input: {
+
   fullName: string;
   actionLink: string;
   roleLabel: string;

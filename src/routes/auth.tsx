@@ -1,10 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Printer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { sendWelcomeEmail } from "@/lib/email.functions";
 import { useAuth } from "@/hooks/useAuth";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +41,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [sentConfirm, setSentConfirm] = useState(false);
+  const sendWelcome = useServerFn(sendWelcomeEmail);
+
 
   useEffect(() => {
     if (!session || !rolesLoaded) return;
@@ -75,8 +80,14 @@ function AuthPage() {
     if (!data.session) {
       setSentConfirm(true);
       toast.success("Hãy kiểm tra email để xác nhận tài khoản");
+      return;
     }
+    toast.success("Tạo tài khoản thành công");
+    void sendWelcome({ data: { email, fullName, siteUrl: window.location.origin } }).catch(
+      () => undefined,
+    );
   }
+
 
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {

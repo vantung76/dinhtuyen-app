@@ -44,3 +44,14 @@ export const sendStaffInvite = createServerFn({ method: "POST" })
     const { sendStaffInvite: run } = await import("./email-actions.server");
     return run(context.supabase, context.userId, data);
   });
+
+export const sendWelcomeEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { email: string; fullName?: string; siteUrl?: string }) => {
+    if (!data?.email) throw new Error("Thiếu địa chỉ email");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { sendWelcomeEmail: run } = await import("./email-actions.server");
+    return run(context.supabase, context.userId, data);
+  });
