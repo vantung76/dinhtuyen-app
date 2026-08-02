@@ -107,7 +107,7 @@ function AuthPage() {
       return;
     }
     toast.success("Tạo tài khoản thành công");
-    void sendWelcome({ data: { email, fullName: email.split("@")[0], siteUrl: window.location.origin } }).catch(
+    void sendWelcome({ data: { email, fullName: email.split("@")[0] ?? email, siteUrl: window.location.origin } }).catch(
       () => undefined,
     );
   }
