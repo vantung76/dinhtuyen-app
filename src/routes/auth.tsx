@@ -75,8 +75,14 @@ function AuthPage() {
     if (!data.session) {
       setSentConfirm(true);
       toast.success("Hãy kiểm tra email để xác nhận tài khoản");
+      return;
     }
+    toast.success("Tạo tài khoản thành công");
+    void sendWelcome({ data: { email, fullName, siteUrl: window.location.origin } }).catch(
+      () => undefined,
+    );
   }
+
 
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
