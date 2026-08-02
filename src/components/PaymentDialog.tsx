@@ -157,7 +157,18 @@ export function PaymentDialog({
             <Label htmlFor="pnote">Ghi chú</Label>
             <Textarea id="pnote" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
+
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              className="size-4 accent-[var(--primary)]"
+              checked={notify}
+              onChange={(e) => setNotify(e.target.checked)}
+            />
+            Gửi email xác nhận cho khách hàng (info@dinhtuyen.com)
+          </label>
         </div>
+
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
