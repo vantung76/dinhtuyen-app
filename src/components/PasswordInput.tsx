@@ -3,11 +3,9 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface PasswordInputProps extends Omit<React.ComponentProps<"input">, "type"> {
-  label?: string;
-}
+interface PasswordInputProps extends Omit<React.ComponentProps<"input">, "type"> {}
 
-export function PasswordInput({ className, label, id, ...props }: PasswordInputProps) {
+export function PasswordInput({ className, id, ...props }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
 
   return (
