@@ -48,12 +48,19 @@ export function PaymentDialog({
   const [notify, setNotify] = useState(true);
 
   const remaining = Number(contract.remaining);
+  const monthly = Number(contract.monthly_payment);
+  const value = Number(amount) || 0;
+  const isSettlement = value > 0 && value >= remaining - 0.5;
+  const earlySettlement = isSettlement && remaining > monthly + 0.5;
 
   const addPayment = useMutation({
     mutationFn: async () => {
-      const value = Number(amount) || 0;
       if (value <= 0) throw new Error("Số tiền phải lớn hơn 0");
       if (value > remaining + 0.5) throw new Error("Số tiền vượt quá số nợ còn lại");
+
+      const autoNote = earlySettlement
+        ? [note, "Tất toán trước hạn"].filter(Boolean).join(" — ")
+        : note;
 
       const { error } = await supabase.from("payments").insert({
         code: makeCode("PT"),
@@ -63,16 +70,21 @@ export function PaymentDialog({
         method,
         collector_id: user?.id ?? null,
         collector_name: fullName,
-        note: note || null,
+        note: autoNote || null,
       });
       if (error) throw error;
 
       if (remaining - value <= 0.5) {
-        await supabase.from("contracts").update({ status: "da_hoan_thanh" }).eq("id", contract.id);
+        await supabase
+          .from("contracts")
+          .update({ status: "da_hoan_thanh", end_date: paidAt })
+          .eq("id", contract.id);
       }
     },
     onSuccess: () => {
-      toast.success("Đã cập nhật thanh toán");
+      toast.success(
+        isSettlement ? "Đã tất toán hợp đồng" : "Đã cập nhật thanh toán",
+      );
       void queryClient.invalidateQueries({ queryKey: ["contracts"] });
       void queryClient.invalidateQueries({ queryKey: ["contract", contract.id] });
       void queryClient.invalidateQueries({ queryKey: ["payments", contract.id] });
