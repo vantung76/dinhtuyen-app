@@ -249,7 +249,8 @@ function AuthPage() {
         </Button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Khách hàng đăng ký bằng đúng email đã khai báo với nhân viên để xem được hợp đồng của
-          mình. Tài khoản nhân viên đầu tiên sẽ là Quản trị viên.
+          mình. Nhân viên vui lòng dùng tài khoản do quản trị viên cấp.
+
         </p>
       </div>
     </main>
