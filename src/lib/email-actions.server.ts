@@ -5,6 +5,7 @@ import {
   paymentReceiptEmail,
   reminderEmail,
   sendResendEmail,
+  staffInvitationEmail,
 } from "./email.server";
 
 type Client = SupabaseClient<Database>;
@@ -162,4 +163,66 @@ export async function sendCustomerActivation(
   const { subject, html } = activationEmail({ customerName: customer.name, actionLink });
   await sendResendEmail({ to: customer.email, subject, html });
   return { sent: true, to: customer.email };
+}
+
+export async function sendStaffInvite(
+  supabase: Client,
+  userId: string,
+  input: { email: string; fullName?: string; role?: "admin" | "staff" },
+) {
+  const { data: isAdmin, error: roleErr } = await supabase.rpc("has_role", {
+    _user_id: userId,
+    _role: "admin",
+  });
+  if (roleErr) throw new Error(roleErr.message);
+  if (!isAdmin) throw new Error("Chỉ quản trị viên mới được mời nhân viên");
+
+  const email = input.email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Email không hợp lệ");
+  const role = input.role === "admin" ? "admin" : "staff";
+  const fullName = input.fullName?.trim() || email.split("@")[0]!;
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "";
+  const redirectTo = siteUrl ? `${siteUrl}/dashboard` : undefined;
+
+  const invite = await supabaseAdmin.auth.admin.generateLink({
+    type: "invite",
+    email,
+    options: {
+      data: { account_type: "staff", full_name: fullName },
+      ...(redirectTo ? { redirectTo } : {}),
+    },
+  });
+
+  let actionLink = invite.data?.properties?.action_link;
+  let invitedUserId = invite.data?.user?.id;
+
+  if (!actionLink) {
+    const magic = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+      ...(redirectTo ? { options: { redirectTo } } : {}),
+    });
+    if (magic.error) throw new Error(magic.error.message);
+    actionLink = magic.data?.properties?.action_link;
+    invitedUserId = magic.data?.user?.id ?? invitedUserId;
+  }
+  if (!actionLink) throw new Error("Không tạo được liên kết kích hoạt");
+
+  if (invitedUserId) {
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", invitedUserId);
+    await supabaseAdmin.from("user_roles").insert({ user_id: invitedUserId, role });
+    await supabaseAdmin
+      .from("profiles")
+      .upsert({ id: invitedUserId, full_name: fullName }, { onConflict: "id" });
+  }
+
+  const { subject, html } = staffInvitationEmail({
+    fullName,
+    actionLink,
+    roleLabel: role === "admin" ? "Quản trị viên" : "Nhân viên",
+  });
+  await sendResendEmail({ to: email, subject, html });
+  return { sent: true, to: email, role };
 }
