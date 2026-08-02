@@ -136,7 +136,7 @@ function ContractDetail() {
       </div>
 
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <div className="stat-card">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Tổng giá trị máy</p>
           <p className="num mt-2 text-lg font-bold">{formatMoney(contract.total_value)}</p>
@@ -201,7 +201,7 @@ function ContractDetail() {
       <div>
         <h2 className="mb-3 text-lg font-semibold">Lịch sử thanh toán</h2>
         <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
-          <Table>
+          <Table className="min-w-[720px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Mã phiếu thu</TableHead>
