@@ -61,7 +61,7 @@ export async function sendPaymentReceipt(
   await assertStaff(supabase, userId);
   const { contract, email, name } = await loadContract(supabase, input.contractId);
 
-  let payment: { amount: number; paid_at: string; method: string } | null = null;
+  type PaymentRow = { amount: number; paid_at: string; method: string };
   const query = supabase
     .from("payments")
     .select("amount, paid_at, method")
@@ -70,8 +70,9 @@ export async function sendPaymentReceipt(
     ? await query.eq("id", input.paymentId).maybeSingle()
     : await query.order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (error) throw new Error(error.message);
-  payment = data as typeof payment;
+  const payment = data as PaymentRow | null;
   if (!payment) throw new Error("Chưa có phiếu thu nào cho hợp đồng này");
+
 
   const { subject, html } = paymentReceiptEmail({
     customerName: name,
