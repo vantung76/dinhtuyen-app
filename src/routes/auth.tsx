@@ -37,7 +37,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { session, isCustomer, rolesLoaded } = useAuth();
-  const [accountType, setAccountType] = useState<"staff" | "customer">("customer");
+  
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
