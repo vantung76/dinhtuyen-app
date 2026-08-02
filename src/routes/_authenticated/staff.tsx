@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { sendStaffInvite } from "@/lib/email.functions";
+import { updateStaffMember, deleteStaffMember } from "@/lib/staff.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 export const Route = createFileRoute("/_authenticated/staff")({
