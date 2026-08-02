@@ -118,6 +118,59 @@ function StaffPage() {
         </p>
       </div>
 
+      <div className="rounded-xl border border-border bg-card p-5 shadow-panel">
+        <h2 className="text-base font-semibold">Mời nhân viên qua email</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Hệ thống gửi thư kích hoạt từ CTY DINHTUYEN &lt;info@dinhtuyen.com&gt;.
+        </p>
+        <form
+          className="mt-4 grid gap-3 sm:grid-cols-[1.2fr_1fr_auto_auto] sm:items-end"
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendInvite.mutate();
+          }}
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="invite-email">Email</Label>
+            <Input
+              id="invite-email"
+              type="email"
+              required
+              placeholder="nhanvien@dinhtuyen.com"
+              value={inviteForm.email}
+              onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="invite-name">Họ tên</Label>
+            <Input
+              id="invite-name"
+              placeholder="Nguyễn Văn A"
+              value={inviteForm.fullName}
+              onChange={(e) => setInviteForm((f) => ({ ...f, fullName: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="invite-role">Vai trò</Label>
+            <select
+              id="invite-role"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={inviteForm.role}
+              onChange={(e) =>
+                setInviteForm((f) => ({ ...f, role: e.target.value as "staff" | "admin" }))
+              }
+            >
+              <option value="staff">Nhân viên</option>
+              <option value="admin">Quản trị viên</option>
+            </select>
+          </div>
+          <Button type="submit" disabled={sendInvite.isPending}>
+            {sendInvite.isPending ? "Đang gửi…" : "Gửi thư kích hoạt"}
+          </Button>
+        </form>
+      </div>
+
+
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
         <Table>
           <TableHeader>
