@@ -43,7 +43,7 @@ export function ReceiptPdfButton({ payment, contract, remainingAfter, periodInde
         receiptCode: payment.code,
         paidAt: payment.paid_at,
         amount: Number(payment.amount),
-        method: PAYMENT_METHOD_LABEL[payment.method],
+        method: PAYMENT_METHOD_LABEL[payment.method] ?? "Tiền mặt",
         note: payment.note,
         periodLabel: `kỳ ${periodIndex}/${contract.months} — tháng ${formatDate(payment.paid_at).slice(3)}`,
         collectorName: payment.collector_name,
