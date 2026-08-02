@@ -219,7 +219,7 @@ function CustomersPage() {
               <TableHead>Email</TableHead>
               <TableHead>Địa chỉ</TableHead>
               <TableHead>Ngày tạo</TableHead>
-              {isAdmin && <TableHead className="text-right">Thao tác</TableHead>}
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -244,8 +244,18 @@ function CustomersPage() {
                   <TableCell>{c.email ?? "—"}</TableCell>
                   <TableCell className="max-w-64 truncate text-sm">{c.address ?? "—"}</TableCell>
                   <TableCell className="text-sm">{formatDate(c.created_at)}</TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right">
+                  <TableCell className="text-right whitespace-nowrap">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Gửi email kích hoạt tài khoản"
+                      title="Gửi email kích hoạt tài khoản"
+                      disabled={!c.email || activate.isPending}
+                      onClick={() => activate.mutate(c.id)}
+                    >
+                      <MailCheck className="size-4 text-primary" />
+                    </Button>
+                    {isAdmin && (
                       <Button
                         size="icon"
                         variant="ghost"
@@ -254,11 +264,12 @@ function CustomersPage() {
                       >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
-                    </TableCell>
-                  )}
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             )}
+
           </TableBody>
         </Table>
       </div>
