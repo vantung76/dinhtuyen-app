@@ -39,11 +39,13 @@ export function PaymentDialog({
   const [open, setOpen] = useState(false);
   const { user, fullName } = useAuth();
   const queryClient = useQueryClient();
+  const sendReceipt = useServerFn(sendPaymentReceipt);
 
   const [amount, setAmount] = useState(String(Math.round(Number(contract.monthly_payment))));
   const [paidAt, setPaidAt] = useState(() => new Date().toISOString().slice(0, 10));
   const [method, setMethod] = useState<PaymentMethod>("tien_mat");
   const [note, setNote] = useState("");
+  const [notify, setNotify] = useState(true);
 
   const remaining = Number(contract.remaining);
 
@@ -76,9 +78,18 @@ export function PaymentDialog({
       void queryClient.invalidateQueries({ queryKey: ["payments", contract.id] });
       setOpen(false);
       setNote("");
+
+      if (notify) {
+        void sendReceipt({ data: { contractId: contract.id } })
+          .then((r) => toast.success(`Đã gửi email xác nhận tới ${r.to}`))
+          .catch((e: Error) =>
+            toast.error("Không gửi được email xác nhận", { description: e.message }),
+          );
+      }
     },
     onError: (e: Error) => toast.error("Không lưu được phiếu thu", { description: e.message }),
   });
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
