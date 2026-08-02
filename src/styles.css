@@ -33,6 +33,8 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-zalo: var(--zalo);
+  --color-zalo-foreground: var(--zalo-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
