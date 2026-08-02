@@ -70,6 +70,15 @@ function ContractDetail() {
     },
   });
 
+  const sendReminderFn = useServerFn(sendPaymentReminder);
+  const reminder = useMutation({
+    mutationFn: async () => sendReminderFn({ data: { contractId } }),
+    onSuccess: (r) => toast.success(`Đã gửi email nhắc đóng tiền tới ${r.to}`),
+    onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
+  });
+
+
+
   if (isLoading) return <p className="text-sm text-muted-foreground">Đang tải…</p>;
   if (!contract) return <p className="text-sm text-muted-foreground">Không tìm thấy hợp đồng.</p>;
 
