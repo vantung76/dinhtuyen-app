@@ -6,7 +6,9 @@ import {
   reminderEmail,
   sendResendEmail,
   staffInvitationEmail,
+  welcomeEmail,
 } from "./email.server";
+
 
 type Client = SupabaseClient<Database>;
 
