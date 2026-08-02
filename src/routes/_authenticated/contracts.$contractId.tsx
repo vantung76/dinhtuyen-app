@@ -14,6 +14,7 @@ import {
 } from "@/lib/format";
 import type { ContractSummary, Payment } from "@/lib/types";
 import { PaymentDialog } from "@/components/PaymentDialog";
+import { ZaloReminderButton } from "@/components/ZaloReminderButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -113,6 +114,7 @@ function ContractDetail() {
         </div>
         {Number(contract.remaining) > 0 && (
           <div className="flex flex-wrap gap-2">
+            <ZaloReminderButton contract={contract} size="default" />
             <Button
               variant="outline"
               disabled={reminder.isPending}

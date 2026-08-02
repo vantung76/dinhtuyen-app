@@ -9,6 +9,8 @@ import { CONTRACT_STATUS_LABEL, formatDate, formatMoney } from "@/lib/format";
 import type { ContractStatus, ContractSummary } from "@/lib/types";
 import { ContractFormDialog } from "@/components/ContractFormDialog";
 import { PaymentDialog } from "@/components/PaymentDialog";
+import { ZaloReminderButton } from "@/components/ZaloReminderButton";
+import { nextDueDate } from "@/lib/zalo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +59,16 @@ function statusVariant(status: ContractStatus) {
   if (status === "qua_han") return "bg-destructive/15 text-destructive border-destructive/30";
   return "bg-primary/10 text-primary border-primary/25";
 }
+
+/** Hợp đồng quá hạn hoặc sắp đến hạn trong 10 ngày tới */
+function isDueSoon(c: ContractSummary) {
+  if (c.status === "qua_han") return true;
+  const due = new Date(nextDueDate(c.start_date, c.payments_count, c.months));
+  const diff = (due.getTime() - Date.now()) / 86_400_000;
+  return diff <= 10;
+}
+
+
 
 function DashboardPage() {
   const { isAdmin } = useAuth();
@@ -230,14 +242,17 @@ function DashboardPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {Number(c.remaining) > 0 && (
-                        <PaymentDialog
-                          contract={c}
-                          trigger={
-                            <Button size="sm" variant="secondary">
-                              <Wallet /> Cập nhật thanh toán
-                            </Button>
-                          }
-                        />
+                        <>
+                          {isDueSoon(c) && <ZaloReminderButton contract={c} />}
+                          <PaymentDialog
+                            contract={c}
+                            trigger={
+                              <Button size="sm" variant="secondary">
+                                <Wallet /> Cập nhật thanh toán
+                              </Button>
+                            }
+                          />
+                        </>
                       )}
                       {isAdmin && (
                         <AlertDialog>
