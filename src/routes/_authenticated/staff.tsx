@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { sendStaffInvite } from "@/lib/email.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -14,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 
 export const Route = createFileRoute("/_authenticated/staff")({
   head: () => ({
