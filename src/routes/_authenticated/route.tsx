@@ -54,38 +54,17 @@ function AuthenticatedLayout() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-          <Link to={isCustomer ? "/portal" : "/dashboard"} className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 lg:flex lg:flex-nowrap">
+          <Link to={isCustomer ? "/portal" : "/dashboard"} className="flex min-w-0 items-center gap-2">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <Printer className="size-4" aria-hidden />
             </span>
-            <span className="text-sm font-semibold">Trả góp máy photocopy</span>
+            <span className="truncate text-sm font-semibold">Trả góp máy photocopy</span>
           </Link>
 
-          <nav className="flex flex-1 flex-wrap items-center gap-1">
-            {(!isCustomer
-              ? NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)
-              : []
-            ).map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
-                  pathname.startsWith(item.to)
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60",
-                )}
-              >
-                <item.icon className="size-4" aria-hidden />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <div className="text-right leading-tight">
-              <p className="text-sm font-medium">{fullName}</p>
+          <div className="col-start-2 row-start-1 flex items-center gap-2 lg:order-3 lg:ml-auto">
+            <div className="min-w-0 text-right leading-tight">
+              <p className="truncate text-sm font-medium">{fullName}</p>
               <p className="text-xs text-sidebar-foreground/70">
                 {isCustomer ? "Khách hàng" : isAdmin ? "Quản trị viên" : "Nhân viên"}
               </p>
@@ -94,6 +73,27 @@ function AuthenticatedLayout() {
               <LogOut className="size-4" />
             </Button>
           </div>
+
+          <nav className="col-span-2 -mx-1 flex items-center gap-1 overflow-x-auto px-1 lg:order-2 lg:col-span-1 lg:mx-0 lg:flex-1 lg:overflow-visible">
+            {(!isCustomer
+              ? NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)
+              : []
+            ).map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
+                  pathname.startsWith(item.to)
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60",
+                )}
+              >
+                <item.icon className="size-4 shrink-0" aria-hidden />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </header>
 

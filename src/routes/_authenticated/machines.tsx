@@ -209,7 +209,7 @@ function MachinesPage() {
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
-        <Table>
+        <Table className="min-w-[720px]">
           <TableHeader>
             <TableRow>
               <TableHead>Mã máy</TableHead>

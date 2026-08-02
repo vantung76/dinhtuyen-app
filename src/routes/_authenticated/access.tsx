@@ -93,7 +93,7 @@ function AccessTestPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         {[
           { label: "Hợp đồng đọc được", value: probe?.contracts },
           { label: "Khách hàng đọc được", value: probe?.customers },

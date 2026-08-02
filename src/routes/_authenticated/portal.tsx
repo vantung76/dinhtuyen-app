@@ -140,7 +140,7 @@ function CustomerPortal() {
         </Badge>
       </header>
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
         {cards.map((c) => (
           <div key={c.label} className="stat-card">
             <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">

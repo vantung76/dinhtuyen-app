@@ -140,7 +140,7 @@ function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <div className="stat-card">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Đang trả góp</p>
           <p className="num mt-2 text-2xl font-bold">{stats.active}</p>
@@ -180,7 +180,7 @@ function DashboardPage() {
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
-        <Table>
+        <Table className="min-w-[720px]">
           <TableHeader>
             <TableRow>
               <TableHead>Mã HĐ</TableHead>
