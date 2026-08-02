@@ -53,6 +53,8 @@ export const Route = createFileRoute("/_authenticated/customers")({
 function CustomersPage() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
+  const sendActivation = useServerFn(sendCustomerActivation);
+
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
