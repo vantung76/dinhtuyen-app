@@ -31,7 +31,8 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const { session, isCustomer, rolesLoaded } = useAuth();
+  const [accountType, setAccountType] = useState<"staff" | "customer">("customer");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,8 +40,9 @@ function AuthPage() {
   const [sentConfirm, setSentConfirm] = useState(false);
 
   useEffect(() => {
-    if (session) void navigate({ to: "/dashboard", replace: true });
-  }, [session, navigate]);
+    if (!session || !rolesLoaded) return;
+    void navigate({ to: isCustomer ? "/portal" : "/dashboard", replace: true });
+  }, [session, rolesLoaded, isCustomer, navigate]);
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +54,6 @@ function AuthPage() {
       return;
     }
     toast.success("Đăng nhập thành công");
-    void navigate({ to: "/dashboard", replace: true });
   }
 
   async function handleSignUp(e: React.FormEvent) {
@@ -63,7 +64,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
+        data: { full_name: fullName, account_type: accountType },
       },
     });
     setLoading(false);
@@ -86,7 +87,6 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    void navigate({ to: "/dashboard", replace: true });
   }
 
   return (
@@ -98,7 +98,7 @@ function AuthPage() {
           </span>
           <div>
             <h1 className="text-lg font-semibold leading-tight">Trả góp máy photocopy</h1>
-            <p className="text-xs text-muted-foreground">Khu vực nhân viên</p>
+            <p className="text-xs text-muted-foreground">Khách hàng &amp; nhân viên</p>
           </div>
         </div>
 
@@ -146,6 +146,26 @@ function AuthPage() {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label>Loại tài khoản</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(
+                      [
+                        { v: "customer", l: "Khách hàng" },
+                        { v: "staff", l: "Nhân viên" },
+                      ] as const
+                    ).map((o) => (
+                      <Button
+                        key={o.v}
+                        type="button"
+                        variant={accountType === o.v ? "default" : "outline"}
+                        onClick={() => setAccountType(o.v)}
+                      >
+                        {o.l}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="fullname">Họ và tên</Label>
                   <Input
@@ -195,7 +215,8 @@ function AuthPage() {
           Tiếp tục với Google
         </Button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Tài khoản đầu tiên đăng ký sẽ là Quản trị viên. Các tài khoản sau mặc định là Nhân viên.
+          Khách hàng đăng ký bằng đúng email đã khai báo với nhân viên để xem được hợp đồng của
+          mình. Tài khoản nhân viên đầu tiên sẽ là Quản trị viên.
         </p>
       </div>
     </main>

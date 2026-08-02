@@ -19,7 +19,7 @@ const NAV = [
 ] as const;
 
 function AuthenticatedLayout() {
-  const { session, loading, fullName, isAdmin, signOut } = useAuth();
+  const { session, loading, fullName, isAdmin, isCustomer, rolesLoaded, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -27,6 +27,12 @@ function AuthenticatedLayout() {
   useEffect(() => {
     if (!loading && !session) void navigate({ to: "/auth", replace: true });
   }, [loading, session, navigate]);
+
+  useEffect(() => {
+    if (rolesLoaded && isCustomer && pathname !== "/portal") {
+      void navigate({ to: "/portal", replace: true });
+    }
+  }, [rolesLoaded, isCustomer, pathname, navigate]);
 
   if (loading || !session) {
     return (
@@ -47,7 +53,7 @@ function AuthenticatedLayout() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <Link to={isCustomer ? "/portal" : "/dashboard"} className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <Printer className="size-4" aria-hidden />
             </span>
@@ -55,7 +61,7 @@ function AuthenticatedLayout() {
           </Link>
 
           <nav className="flex flex-1 flex-wrap items-center gap-1">
-            {NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin).map((item) => (
+            {(isCustomer ? [] : NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -76,7 +82,7 @@ function AuthenticatedLayout() {
             <div className="text-right leading-tight">
               <p className="text-sm font-medium">{fullName}</p>
               <p className="text-xs text-sidebar-foreground/70">
-                {isAdmin ? "Quản trị viên" : "Nhân viên"}
+                {isCustomer ? "Khách hàng" : isAdmin ? "Quản trị viên" : "Nhân viên"}
               </p>
             </div>
             <Button size="icon" variant="ghost" onClick={handleSignOut} aria-label="Đăng xuất">
