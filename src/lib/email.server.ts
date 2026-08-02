@@ -84,6 +84,7 @@ export function paymentReceiptEmail(input: {
   monthlyPayment: number;
   nextDueDate: string | null;
 }) {
+  const settled = Number(input.remaining) <= 0.5;
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
   CTY DINHTUYEN xác nhận đã nhận khoản thanh toán trả góp của quý khách.</p>
@@ -96,10 +97,15 @@ export function paymentReceiptEmail(input: {
     ${row("Hợp đồng", input.contractCode)}
     ${row("Máy photocopy", input.machineName)}
     ${row("Tổng đã thanh toán", money(input.totalPaid))}
-    ${row("Dư nợ còn lại", money(input.remaining), true)}
-    ${row("Số tiền kỳ tới", money(input.monthlyPayment))}
-    ${row("Hạn đóng kỳ tới", day(input.nextDueDate))}
+    ${row("Dư nợ còn lại", money(settled ? 0 : input.remaining), true)}
+    ${row("Số tiền kỳ tới", settled ? money(0) : money(input.monthlyPayment))}
+    ${row("Hạn đóng kỳ tới", settled ? "—" : day(input.nextDueDate))}
   </table>
+  ${
+    settled
+      ? `<p style="font-size:14px;color:#067647;background:#ecfdf3;border-radius:10px;padding:12px;margin-top:16px">Quý khách đã <strong>tất toán</strong> hợp đồng này. Không còn kỳ đóng tiền nào tiếp theo.</p>`
+      : ""
+  }
   <p style="font-size:13px;color:#667085;margin-top:20px">Quý khách có thể đăng nhập cổng thông tin khách hàng để xem toàn bộ lịch sử thanh toán.</p>`;
   return {
     subject: `Xác nhận thanh toán ${money(input.amount)} — HĐ ${input.contractCode}`,
