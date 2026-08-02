@@ -213,7 +213,7 @@ export function PaymentDialog({
             Huỷ
           </Button>
           <Button disabled={addPayment.isPending} onClick={() => addPayment.mutate()}>
-            Lưu phiếu thu
+            {isSettlement ? "Tất toán hợp đồng" : "Lưu phiếu thu"}
           </Button>
         </DialogFooter>
       </DialogContent>
