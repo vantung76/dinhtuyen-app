@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Wallet } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, Mail, Wallet } from "lucide-react";
+import { toast } from "sonner";
+import { sendPaymentReminder } from "@/lib/email.functions";
 import { supabase } from "@/integrations/supabase/client";
+
 import {
   CONTRACT_STATUS_LABEL,
   PAYMENT_METHOD_LABEL,
@@ -70,6 +74,15 @@ function ContractDetail() {
     },
   });
 
+  const sendReminderFn = useServerFn(sendPaymentReminder);
+  const reminder = useMutation({
+    mutationFn: async () => sendReminderFn({ data: { contractId } }),
+    onSuccess: (r) => toast.success(`Đã gửi email nhắc đóng tiền tới ${r.to}`),
+    onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
+  });
+
+
+
   if (isLoading) return <p className="text-sm text-muted-foreground">Đang tải…</p>;
   if (!contract) return <p className="text-sm text-muted-foreground">Không tìm thấy hợp đồng.</p>;
 
@@ -99,16 +112,26 @@ function ContractDetail() {
           </p>
         </div>
         {Number(contract.remaining) > 0 && (
-          <PaymentDialog
-            contract={contract}
-            trigger={
-              <Button>
-                <Wallet /> Cập nhật thanh toán
-              </Button>
-            }
-          />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              disabled={reminder.isPending}
+              onClick={() => reminder.mutate()}
+            >
+              <Mail /> Gửi email nhắc đóng tiền
+            </Button>
+            <PaymentDialog
+              contract={contract}
+              trigger={
+                <Button>
+                  <Wallet /> Cập nhật thanh toán
+                </Button>
+              }
+            />
+          </div>
         )}
       </div>
+
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="stat-card">

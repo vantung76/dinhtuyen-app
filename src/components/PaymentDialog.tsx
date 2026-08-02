@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatMoney, makeCode } from "@/lib/format";
+import { sendPaymentReceipt } from "@/lib/email.functions";
 import type { ContractSummary, PaymentMethod } from "@/lib/types";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,11 +39,13 @@ export function PaymentDialog({
   const [open, setOpen] = useState(false);
   const { user, fullName } = useAuth();
   const queryClient = useQueryClient();
+  const sendReceipt = useServerFn(sendPaymentReceipt);
 
   const [amount, setAmount] = useState(String(Math.round(Number(contract.monthly_payment))));
   const [paidAt, setPaidAt] = useState(() => new Date().toISOString().slice(0, 10));
   const [method, setMethod] = useState<PaymentMethod>("tien_mat");
   const [note, setNote] = useState("");
+  const [notify, setNotify] = useState(true);
 
   const remaining = Number(contract.remaining);
 
@@ -73,9 +78,18 @@ export function PaymentDialog({
       void queryClient.invalidateQueries({ queryKey: ["payments", contract.id] });
       setOpen(false);
       setNote("");
+
+      if (notify) {
+        void sendReceipt({ data: { contractId: contract.id } })
+          .then((r) => toast.success(`Đã gửi email xác nhận tới ${r.to}`))
+          .catch((e: Error) =>
+            toast.error("Không gửi được email xác nhận", { description: e.message }),
+          );
+      }
     },
     onError: (e: Error) => toast.error("Không lưu được phiếu thu", { description: e.message }),
   });
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -143,7 +157,18 @@ export function PaymentDialog({
             <Label htmlFor="pnote">Ghi chú</Label>
             <Textarea id="pnote" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
+
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              className="size-4 accent-[var(--primary)]"
+              checked={notify}
+              onChange={(e) => setNotify(e.target.checked)}
+            />
+            Gửi email xác nhận cho khách hàng (info@dinhtuyen.com)
+          </label>
         </div>
+
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>

@@ -1,12 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { MailCheck, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate, makeCode } from "@/lib/format";
+import { sendCustomerActivation } from "@/lib/email.functions";
 import type { Customer } from "@/lib/types";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +53,8 @@ export const Route = createFileRoute("/_authenticated/customers")({
 function CustomersPage() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
+  const sendActivation = useServerFn(sendCustomerActivation);
+
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
@@ -88,6 +93,12 @@ function CustomersPage() {
     onError: (e: Error) => toast.error("Không lưu được", { description: e.message }),
   });
 
+  const activate = useMutation({
+    mutationFn: async (id: string) => sendActivation({ data: { customerId: id } }),
+    onSuccess: (r) => toast.success(`Đã gửi email kích hoạt tới ${r.to}`),
+    onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
+  });
+
   const remove = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("customers").delete().eq("id", id);
@@ -99,6 +110,7 @@ function CustomersPage() {
     },
     onError: (e: Error) => toast.error("Không xoá được", { description: e.message }),
   });
+
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -207,7 +219,7 @@ function CustomersPage() {
               <TableHead>Email</TableHead>
               <TableHead>Địa chỉ</TableHead>
               <TableHead>Ngày tạo</TableHead>
-              {isAdmin && <TableHead className="text-right">Thao tác</TableHead>}
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -232,8 +244,18 @@ function CustomersPage() {
                   <TableCell>{c.email ?? "—"}</TableCell>
                   <TableCell className="max-w-64 truncate text-sm">{c.address ?? "—"}</TableCell>
                   <TableCell className="text-sm">{formatDate(c.created_at)}</TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right">
+                  <TableCell className="text-right whitespace-nowrap">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Gửi email kích hoạt tài khoản"
+                      title="Gửi email kích hoạt tài khoản"
+                      disabled={!c.email || activate.isPending}
+                      onClick={() => activate.mutate(c.id)}
+                    >
+                      <MailCheck className="size-4 text-primary" />
+                    </Button>
+                    {isAdmin && (
                       <Button
                         size="icon"
                         variant="ghost"
@@ -242,11 +264,12 @@ function CustomersPage() {
                       >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
-                    </TableCell>
-                  )}
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             )}
+
           </TableBody>
         </Table>
       </div>

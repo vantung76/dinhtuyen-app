@@ -1,0 +1,148 @@
+// Cổng gửi email qua Resend (server-only).
+const RESEND_ENDPOINT = "https://api.resend.com/emails";
+
+export const EMAIL_FROM = "CTY DINHTUYEN <info@dinhtuyen.com>";
+
+export type SendEmailInput = {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+};
+
+export async function sendResendEmail({ to, subject, html, replyTo }: SendEmailInput) {
+  const apiKey = process.env["RESEND_API_KEY"];
+  if (!apiKey) throw new Error("Chưa cấu hình RESEND_API_KEY");
+
+  const response = await fetch(RESEND_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      from: EMAIL_FROM,
+      to: [to],
+      subject,
+      html,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    console.error(`[Resend] gửi email thất bại [${response.status}]: ${body}`);
+    throw new Error(`Gửi email thất bại [${response.status}]: ${body}`);
+  }
+
+  return (await response.json()) as { id: string };
+}
+
+const money = (value: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 })
+    .format(Number.isFinite(value) ? value : 0)
+    .replace(/\u00a0/g, " ");
+
+const day = (value: string | null | undefined) => {
+  if (!value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("vi-VN");
+};
+
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (c) =>
+    c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === '"' ? "&quot;" : "&#39;",
+  );
+
+function layout(title: string, inner: string) {
+  return `<!doctype html><html lang="vi"><body style="margin:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#101828">
+  <div style="max-width:560px;margin:0 auto;padding:24px">
+    <div style="background:#ffffff;border-radius:14px;padding:28px 24px;border:1px solid #e4e7ec">
+      <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#667085">CTY DINHTUYEN</div>
+      <h1 style="margin:8px 0 16px;font-size:20px;line-height:1.35">${escapeHtml(title)}</h1>
+      ${inner}
+    </div>
+    <p style="margin:16px 0 0;font-size:12px;color:#98a2b3;text-align:center">
+      Email tự động từ hệ thống quản lý trả góp máy photocopy — CTY DINHTUYEN (info@dinhtuyen.com)
+    </p>
+  </div></body></html>`;
+}
+
+const row = (label: string, value: string, strong = false) =>
+  `<tr><td style="padding:8px 0;color:#667085;font-size:14px">${escapeHtml(label)}</td>
+   <td style="padding:8px 0;text-align:right;font-size:14px;${strong ? "font-weight:700;color:#101828" : ""}">${escapeHtml(value)}</td></tr>`;
+
+export function paymentReceiptEmail(input: {
+  customerName: string;
+  contractCode: string;
+  machineName: string;
+  amount: number;
+  paidAt: string;
+  method: string;
+  totalPaid: number;
+  remaining: number;
+  monthlyPayment: number;
+  nextDueDate: string | null;
+}) {
+  const inner = `
+  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
+  CTY DINHTUYEN xác nhận đã nhận khoản thanh toán trả góp của quý khách.</p>
+  <div style="background:#f0f7ff;border-radius:12px;padding:16px;margin:16px 0;text-align:center">
+    <div style="font-size:13px;color:#475467">Số tiền đã nhận</div>
+    <div style="font-size:26px;font-weight:700;color:#0b5cd5;margin-top:4px">${escapeHtml(money(input.amount))}</div>
+    <div style="font-size:13px;color:#475467;margin-top:4px">Ngày ${escapeHtml(day(input.paidAt))} · ${escapeHtml(input.method)}</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    ${row("Hợp đồng", input.contractCode)}
+    ${row("Máy photocopy", input.machineName)}
+    ${row("Tổng đã thanh toán", money(input.totalPaid))}
+    ${row("Dư nợ còn lại", money(input.remaining), true)}
+    ${row("Số tiền kỳ tới", money(input.monthlyPayment))}
+    ${row("Hạn đóng kỳ tới", day(input.nextDueDate))}
+  </table>
+  <p style="font-size:13px;color:#667085;margin-top:20px">Quý khách có thể đăng nhập cổng thông tin khách hàng để xem toàn bộ lịch sử thanh toán.</p>`;
+  return {
+    subject: `Xác nhận thanh toán ${money(input.amount)} — HĐ ${input.contractCode}`,
+    html: layout("Xác nhận thanh toán trả góp", inner),
+  };
+}
+
+export function activationEmail(input: { customerName: string; actionLink: string }) {
+  const inner = `
+  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
+  CTY DINHTUYEN đã tạo tài khoản tra cứu hợp đồng trả góp cho quý khách.</p>
+  <p style="text-align:center;margin:24px 0">
+    <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Kích hoạt tài khoản</a>
+  </p>
+  <p style="font-size:13px;color:#667085;word-break:break-all">Nếu nút không hoạt động, vui lòng mở liên kết sau:<br/>${escapeHtml(input.actionLink)}</p>
+  <p style="font-size:13px;color:#667085">Liên kết có hiệu lực trong thời gian giới hạn. Nếu quý khách không yêu cầu, vui lòng bỏ qua email này.</p>`;
+  return {
+    subject: "Kích hoạt tài khoản tra cứu hợp đồng trả góp",
+    html: layout("Kích hoạt tài khoản khách hàng", inner),
+  };
+}
+
+export function reminderEmail(input: {
+  customerName: string;
+  contractCode: string;
+  monthlyPayment: number;
+  remaining: number;
+  dueDate: string | null;
+}) {
+  const inner = `
+  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
+  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp sắp tới của quý khách.</p>
+  <div style="background:#fff7ed;border-radius:12px;padding:16px;margin:16px 0;text-align:center">
+    <div style="font-size:13px;color:#475467">Số tiền cần đóng</div>
+    <div style="font-size:26px;font-weight:700;color:#b54708;margin-top:4px">${escapeHtml(money(input.monthlyPayment))}</div>
+    <div style="font-size:13px;color:#475467;margin-top:4px">Hạn đóng: ${escapeHtml(day(input.dueDate))}</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    ${row("Hợp đồng", input.contractCode)}
+    ${row("Dư nợ còn lại", money(input.remaining), true)}
+  </table>`;
+  return {
+    subject: `Nhắc đóng tiền trả góp — HĐ ${input.contractCode}`,
+    html: layout("Thông báo kỳ đóng tiền trả góp", inner),
+  };
+}
