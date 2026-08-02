@@ -44,9 +44,11 @@ export function moneyToWords(value: number | string): string {
   const scales = ["", " nghìn", " triệu", " tỷ", " nghìn tỷ", " triệu tỷ"];
   const parts: string[] = [];
   for (let i = groups.length - 1; i >= 0; i--) {
-    if (groups[i] === 0) continue;
-    parts.push(readTriple(groups[i], i !== groups.length - 1) + scales[i]);
+    const g = groups[i] ?? 0;
+    if (g === 0) continue;
+    parts.push(readTriple(g, i !== groups.length - 1) + (scales[i] ?? ""));
   }
+
   const text = parts.join(" ").replace(/\s+/g, " ").trim();
   return text.charAt(0).toUpperCase() + text.slice(1) + " đồng";
 }
