@@ -62,6 +62,7 @@ export const Route = createFileRoute("/_authenticated/staff")({
 type StaffRow = {
   id: string;
   full_name: string | null;
+  phone: string | null;
   email: string | null;
   created_at: string;
   roles: string[];
@@ -117,6 +118,33 @@ function StaffPage() {
       void queryClient.invalidateQueries({ queryKey: ["staff"] });
     },
     onError: (e: Error) => toast.error("Không đổi được quyền", { description: e.message }),
+  });
+
+  const [editing, setEditing] = useState<StaffRow | null>(null);
+  const [editForm, setEditForm] = useState({ fullName: "", phone: "" });
+  const [deleting, setDeleting] = useState<StaffRow | null>(null);
+  const runUpdate = useServerFn(updateStaffMember);
+  const runDelete = useServerFn(deleteStaffMember);
+
+  const updateStaff = useMutation({
+    mutationFn: async () =>
+      runUpdate({ data: { id: editing!.id, fullName: editForm.fullName, phone: editForm.phone } }),
+    onSuccess: () => {
+      toast.success("Đã cập nhật thông tin nhân viên");
+      setEditing(null);
+      void queryClient.invalidateQueries({ queryKey: ["staff"] });
+    },
+    onError: (e: Error) => toast.error("Không cập nhật được", { description: e.message }),
+  });
+
+  const removeStaff = useMutation({
+    mutationFn: async () => runDelete({ data: { id: deleting!.id } }),
+    onSuccess: () => {
+      toast.success("Đã xoá nhân viên khỏi hệ thống");
+      setDeleting(null);
+      void queryClient.invalidateQueries({ queryKey: ["staff"] });
+    },
+    onError: (e: Error) => toast.error("Không xoá được", { description: e.message }),
   });
 
   if (!isAdmin) {
