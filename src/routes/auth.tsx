@@ -201,15 +201,6 @@ function AuthPage() {
                 </p>
 
                 <div className="space-y-2">
-                  <Label htmlFor="fullname">Họ và tên</Label>
-                  <Input
-                    id="fullname"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="email2">Email</Label>
                   <Input
                     id="email2"
