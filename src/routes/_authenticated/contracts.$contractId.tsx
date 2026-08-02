@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Wallet } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, Mail, Wallet } from "lucide-react";
+import { toast } from "sonner";
+import { sendPaymentReminder } from "@/lib/email.functions";
 import { supabase } from "@/integrations/supabase/client";
+
 import {
   CONTRACT_STATUS_LABEL,
   PAYMENT_METHOD_LABEL,
