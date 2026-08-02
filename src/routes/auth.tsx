@@ -195,26 +195,11 @@ function AuthPage() {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label>Loại tài khoản</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(
-                      [
-                        { v: "customer", l: "Khách hàng" },
-                        { v: "staff", l: "Nhân viên" },
-                      ] as const
-                    ).map((o) => (
-                      <Button
-                        key={o.v}
-                        type="button"
-                        variant={accountType === o.v ? "default" : "outline"}
-                        onClick={() => setAccountType(o.v)}
-                      >
-                        {o.l}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+                <p className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+                  Cổng này chỉ dành cho <strong>khách hàng</strong>. Tài khoản nhân viên do quản trị
+                  viên tạo và gửi thư mời từ hệ thống.
+                </p>
+
                 <div className="space-y-2">
                   <Label htmlFor="fullname">Họ và tên</Label>
                   <Input
