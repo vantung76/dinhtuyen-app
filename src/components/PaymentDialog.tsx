@@ -134,7 +134,33 @@ export function PaymentDialog({
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
             />
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setAmount(String(Math.round(Math.min(monthly, remaining))))}
+              >
+                Đóng 1 kỳ ({formatMoney(Math.min(monthly, remaining))})
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setAmount(String(Math.round(remaining)))}
+              >
+                Tất toán toàn bộ ({formatMoney(remaining)})
+              </Button>
+            </div>
+            {isSettlement && (
+              <p className="rounded-md bg-success/10 p-2 text-sm text-success">
+                {earlySettlement
+                  ? "Khách tất toán trước hạn — hợp đồng sẽ được đóng và chuyển sang trạng thái “Đã hoàn thành”."
+                  : "Khoản này thanh toán hết dư nợ — hợp đồng sẽ chuyển sang “Đã hoàn thành”."}
+              </p>
+            )}
           </div>
+
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
