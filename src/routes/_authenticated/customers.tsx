@@ -91,6 +91,12 @@ function CustomersPage() {
     onError: (e: Error) => toast.error("Không lưu được", { description: e.message }),
   });
 
+  const activate = useMutation({
+    mutationFn: async (id: string) => sendActivation({ data: { customerId: id } }),
+    onSuccess: (r) => toast.success(`Đã gửi email kích hoạt tới ${r.to}`),
+    onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
+  });
+
   const remove = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("customers").delete().eq("id", id);
@@ -102,6 +108,7 @@ function CustomersPage() {
     },
     onError: (e: Error) => toast.error("Không xoá được", { description: e.message }),
   });
+
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
