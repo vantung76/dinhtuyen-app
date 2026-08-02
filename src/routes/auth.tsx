@@ -41,7 +41,6 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [sentConfirm, setSentConfirm] = useState(false);
   const sendWelcome = useServerFn(sendWelcomeEmail);
   const sendReset = useServerFn(requestPasswordReset);
@@ -94,7 +93,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, account_type: "customer" },
+        data: { full_name: email.split("@")[0], account_type: "customer" },
       },
     });
     setLoading(false);
@@ -108,7 +107,7 @@ function AuthPage() {
       return;
     }
     toast.success("Tạo tài khoản thành công");
-    void sendWelcome({ data: { email, fullName, siteUrl: window.location.origin } }).catch(
+    void sendWelcome({ data: { email, fullName: email.split("@")[0] ?? email, siteUrl: window.location.origin } }).catch(
       () => undefined,
     );
   }
@@ -200,15 +199,6 @@ function AuthPage() {
                   viên tạo và gửi thư mời từ hệ thống.
                 </p>
 
-                <div className="space-y-2">
-                  <Label htmlFor="fullname">Họ và tên</Label>
-                  <Input
-                    id="fullname"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email2">Email</Label>
                   <Input
