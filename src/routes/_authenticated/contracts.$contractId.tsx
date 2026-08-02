@@ -15,6 +15,7 @@ import {
 import type { ContractSummary, Payment } from "@/lib/types";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ZaloReminderButton } from "@/components/ZaloReminderButton";
+import { ReceiptPdfButton } from "@/components/ReceiptPdfButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
