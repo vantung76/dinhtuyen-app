@@ -107,10 +107,10 @@ export function receiptHtml(d: ReceiptData): string {
   .box{margin-top:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;padding:10px 14px;display:flex;gap:28px;font-size:13px}
   .box div span{color:#475569}
   .box div b{display:block;font-size:15px;margin-top:2px}
-  .sign{margin-top:auto;display:flex;justify-content:flex-end;gap:70px;text-align:center;font-size:12.5px}
+  .sign{margin-top:auto;padding-bottom:6px;display:flex;justify-content:flex-end;gap:70px;text-align:center;font-size:12.5px}
   .sign div{width:200px}
   .sign b{font-size:13px}
-  .sign i{display:block;color:#94a3b8;font-size:11.5px;margin-top:46px}
+  .sign i{display:block;color:#94a3b8;font-size:11.5px;margin-top:30px}
 </style></head><body><div class="page">
   <div style="display:flex;justify-content:space-between;align-items:flex-start">
     <div>
