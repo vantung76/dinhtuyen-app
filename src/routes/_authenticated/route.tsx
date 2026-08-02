@@ -30,7 +30,8 @@ function AuthenticatedLayout() {
   }, [loading, session, navigate]);
 
   useEffect(() => {
-    if (rolesLoaded && isCustomer && pathname !== "/portal") {
+    const allowed = pathname === "/portal" || pathname === "/access";
+    if (rolesLoaded && isCustomer && !allowed) {
       void navigate({ to: "/portal", replace: true });
     }
   }, [rolesLoaded, isCustomer, pathname, navigate]);
