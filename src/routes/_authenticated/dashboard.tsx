@@ -230,14 +230,17 @@ function DashboardPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {Number(c.remaining) > 0 && (
-                        <PaymentDialog
-                          contract={c}
-                          trigger={
-                            <Button size="sm" variant="secondary">
-                              <Wallet /> Cập nhật thanh toán
-                            </Button>
-                          }
-                        />
+                        <>
+                          {isDueSoon(c) && <ZaloReminderButton contract={c} />}
+                          <PaymentDialog
+                            contract={c}
+                            trigger={
+                              <Button size="sm" variant="secondary">
+                                <Wallet /> Cập nhật thanh toán
+                              </Button>
+                            }
+                          />
+                        </>
                       )}
                       {isAdmin && (
                         <AlertDialog>
