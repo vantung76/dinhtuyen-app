@@ -86,9 +86,8 @@ function ResetPasswordPage() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="new-password">Mật khẩu mới</Label>
-              <Input
+              <PasswordInput
                 id="new-password"
-                type="password"
                 required
                 minLength={6}
                 value={password}
@@ -98,9 +97,8 @@ function ResetPasswordPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm-password">Nhập lại mật khẩu</Label>
-              <Input
+              <PasswordInput
                 id="confirm-password"
-                type="password"
                 required
                 minLength={6}
                 value={confirm}
