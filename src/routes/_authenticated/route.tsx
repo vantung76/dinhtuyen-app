@@ -63,7 +63,10 @@ function AuthenticatedLayout() {
           </Link>
 
           <nav className="flex flex-1 flex-wrap items-center gap-1">
-            {(isCustomer ? [] : NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)).map((item) => (
+            {(isCustomer
+              ? NAV.filter((n) => n.to === "/access")
+              : NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)
+            ).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
