@@ -185,3 +185,18 @@ export function staffInvitationEmail(input: {
     html: layout("Mời tham gia hệ thống quản lý trả góp", inner),
   };
 }
+
+export function passwordResetEmail(input: { fullName: string; actionLink: string }) {
+  const inner = `
+  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.fullName)}</strong>,<br/>
+  Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại hệ thống quản lý trả góp máy photocopy — CTY DINHTUYEN.</p>
+  <p style="text-align:center;margin:24px 0">
+    <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Đặt lại mật khẩu</a>
+  </p>
+  <p style="font-size:13px;color:#667085;word-break:break-all">Nếu nút không hoạt động, vui lòng mở liên kết sau:<br/>${escapeHtml(input.actionLink)}</p>
+  <p style="font-size:13px;color:#667085">Liên kết có hiệu lực trong thời gian giới hạn. Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này.</p>`;
+  return {
+    subject: "Đặt lại mật khẩu — CTY DINHTUYEN",
+    html: layout("Yêu cầu đặt lại mật khẩu", inner),
+  };
+}
