@@ -46,7 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const userId = session?.user.id;
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setRolesLoaded(false);
+      return;
+    }
     let active = true;
     void (async () => {
       const [rolesRes, profileRes] = await Promise.all([
@@ -56,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       setRoles(((rolesRes.data ?? []) as { role: Role }[]).map((r) => r.role));
       setFullName(profileRes.data?.full_name ?? "");
+      setRolesLoaded(true);
     })();
     return () => {
       active = false;
@@ -68,13 +72,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       roles,
       isAdmin: roles.includes("admin"),
+      isCustomer: roles.includes("customer") && !roles.includes("admin") && !roles.includes("staff"),
+      isStaff: roles.includes("admin") || roles.includes("staff"),
+      rolesLoaded,
       fullName: fullName || (session?.user.email ?? ""),
       loading,
       signOut: async () => {
         await supabase.auth.signOut();
       },
     }),
-    [session, roles, fullName, loading],
+    [session, roles, rolesLoaded, fullName, loading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
