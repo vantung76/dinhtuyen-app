@@ -98,6 +98,7 @@ export type Database = {
           note: string | null
           phone: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -110,6 +111,7 @@ export type Database = {
           note?: string | null
           phone?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -122,6 +124,7 @@ export type Database = {
           note?: string | null
           phone?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -311,9 +314,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      my_customer_ids: { Args: never; Returns: string[] }
     }
     Enums: {
-      app_role: "admin" | "staff"
+      app_role: "admin" | "staff" | "customer"
       contract_status: "dang_tra_gop" | "da_hoan_thanh" | "qua_han"
       payment_method: "tien_mat" | "chuyen_khoan"
     }
@@ -443,7 +448,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff"],
+      app_role: ["admin", "staff", "customer"],
       contract_status: ["dang_tra_gop", "da_hoan_thanh", "qua_han"],
       payment_method: ["tien_mat", "chuyen_khoan"],
     },

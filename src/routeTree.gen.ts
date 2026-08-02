@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMachinesRouteImport } from './routes/_authenticated/machines'
+import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedContractsContractIdRouteImport } from './routes/_authenticated/contracts.$contractId'
 
@@ -47,6 +48,11 @@ const AuthenticatedMachinesRoute = AuthenticatedMachinesRouteImport.update({
   path: '/machines',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPortalRoute = AuthenticatedPortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/machines': typeof AuthenticatedMachinesRoute
+  '/portal': typeof AuthenticatedPortalRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/machines': typeof AuthenticatedMachinesRoute
+  '/portal': typeof AuthenticatedPortalRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/machines': typeof AuthenticatedMachinesRoute
+  '/_authenticated/portal': typeof AuthenticatedPortalRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/customers'
     | '/dashboard'
     | '/machines'
+    | '/portal'
     | '/staff'
     | '/contracts/$contractId'
   fileRoutesByTo: FileRoutesByTo
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/customers'
     | '/dashboard'
     | '/machines'
+    | '/portal'
     | '/staff'
     | '/contracts/$contractId'
   id:
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customers'
     | '/_authenticated/dashboard'
     | '/_authenticated/machines'
+    | '/_authenticated/portal'
     | '/_authenticated/staff'
     | '/_authenticated/contracts/$contractId'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMachinesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/portal': {
+      id: '/_authenticated/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof AuthenticatedPortalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/staff': {
       id: '/_authenticated/staff'
       path: '/staff'
@@ -190,6 +209,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMachinesRoute: typeof AuthenticatedMachinesRoute
+  AuthenticatedPortalRoute: typeof AuthenticatedPortalRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
   AuthenticatedContractsContractIdRoute: typeof AuthenticatedContractsContractIdRoute
 }
@@ -198,6 +218,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMachinesRoute: AuthenticatedMachinesRoute,
+  AuthenticatedPortalRoute: AuthenticatedPortalRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRoute,
   AuthenticatedContractsContractIdRoute: AuthenticatedContractsContractIdRoute,
 }
