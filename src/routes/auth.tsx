@@ -37,7 +37,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { session, isCustomer, rolesLoaded } = useAuth();
-  const [accountType, setAccountType] = useState<"staff" | "customer">("customer");
+  
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -94,7 +94,7 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, account_type: accountType },
+        data: { full_name: fullName, account_type: "customer" },
       },
     });
     setLoading(false);
@@ -195,26 +195,11 @@ function AuthPage() {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label>Loại tài khoản</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(
-                      [
-                        { v: "customer", l: "Khách hàng" },
-                        { v: "staff", l: "Nhân viên" },
-                      ] as const
-                    ).map((o) => (
-                      <Button
-                        key={o.v}
-                        type="button"
-                        variant={accountType === o.v ? "default" : "outline"}
-                        onClick={() => setAccountType(o.v)}
-                      >
-                        {o.l}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+                <p className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+                  Cổng này chỉ dành cho <strong>khách hàng</strong>. Tài khoản nhân viên do quản trị
+                  viên tạo và gửi thư mời từ hệ thống.
+                </p>
+
                 <div className="space-y-2">
                   <Label htmlFor="fullname">Họ và tên</Label>
                   <Input
@@ -264,7 +249,8 @@ function AuthPage() {
         </Button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Khách hàng đăng ký bằng đúng email đã khai báo với nhân viên để xem được hợp đồng của
-          mình. Tài khoản nhân viên đầu tiên sẽ là Quản trị viên.
+          mình. Nhân viên vui lòng dùng tài khoản do quản trị viên cấp.
+
         </p>
       </div>
     </main>
