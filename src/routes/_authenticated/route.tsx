@@ -16,6 +16,7 @@ const NAV = [
   { to: "/customers", label: "Khách hàng", icon: Users },
   { to: "/machines", label: "Máy photocopy", icon: Boxes },
   { to: "/staff", label: "Nhân sự", icon: ShieldCheck, adminOnly: true },
+  { to: "/access", label: "Phân quyền", icon: ShieldCheck },
 ] as const;
 
 function AuthenticatedLayout() {
@@ -29,7 +30,8 @@ function AuthenticatedLayout() {
   }, [loading, session, navigate]);
 
   useEffect(() => {
-    if (rolesLoaded && isCustomer && pathname !== "/portal") {
+    const allowed = pathname === "/portal" || pathname === "/access";
+    if (rolesLoaded && isCustomer && !allowed) {
       void navigate({ to: "/portal", replace: true });
     }
   }, [rolesLoaded, isCustomer, pathname, navigate]);
@@ -61,7 +63,10 @@ function AuthenticatedLayout() {
           </Link>
 
           <nav className="flex flex-1 flex-wrap items-center gap-1">
-            {(isCustomer ? [] : NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)).map((item) => (
+            {(isCustomer
+              ? NAV.filter((n) => n.to === "/access")
+              : NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)
+            ).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
