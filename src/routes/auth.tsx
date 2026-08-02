@@ -41,6 +41,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [sentConfirm, setSentConfirm] = useState(false);
+  const sendWelcome = useServerFn(sendWelcomeEmail);
+
 
   useEffect(() => {
     if (!session || !rolesLoaded) return;
