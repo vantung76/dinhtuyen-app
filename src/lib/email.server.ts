@@ -146,3 +146,22 @@ export function reminderEmail(input: {
     html: layout("Thông báo kỳ đóng tiền trả góp", inner),
   };
 }
+
+export function staffInvitationEmail(input: {
+  fullName: string;
+  actionLink: string;
+  roleLabel: string;
+}) {
+  const inner = `
+  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.fullName)}</strong>,<br/>
+  CTY DINHTUYEN mời bạn tham gia hệ thống quản lý trả góp máy photocopy với vai trò <strong>${escapeHtml(input.roleLabel)}</strong>.</p>
+  <p style="text-align:center;margin:24px 0">
+    <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Kích hoạt tài khoản nhân viên</a>
+  </p>
+  <p style="font-size:13px;color:#667085;word-break:break-all">Nếu nút không hoạt động, vui lòng mở liên kết sau:<br/>${escapeHtml(input.actionLink)}</p>
+  <p style="font-size:13px;color:#667085">Sau khi kích hoạt, bạn hãy đặt mật khẩu và đăng nhập để tạo hợp đồng, thu tiền trả góp.</p>`;
+  return {
+    subject: `Kích hoạt tài khoản ${input.roleLabel} — CTY DINHTUYEN`,
+    html: layout("Mời tham gia hệ thống quản lý trả góp", inner),
+  };
+}

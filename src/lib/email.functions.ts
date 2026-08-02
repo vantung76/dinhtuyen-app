@@ -33,3 +33,14 @@ export const sendCustomerActivation = createServerFn({ method: "POST" })
     const { sendCustomerActivation: run } = await import("./email-actions.server");
     return run(context.supabase, context.userId, data);
   });
+
+export const sendStaffInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { email: string; fullName?: string; role?: "admin" | "staff" }) => {
+    if (!data?.email) throw new Error("Thiếu địa chỉ email");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { sendStaffInvite: run } = await import("./email-actions.server");
+    return run(context.supabase, context.userId, data);
+  });
