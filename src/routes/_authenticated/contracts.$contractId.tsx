@@ -15,6 +15,7 @@ import {
 import type { ContractSummary, Payment } from "@/lib/types";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ZaloReminderButton } from "@/components/ZaloReminderButton";
+import { ReceiptPdfButton } from "@/components/ReceiptPdfButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -209,27 +210,48 @@ function ContractDetail() {
                 <TableHead>Phương thức</TableHead>
                 <TableHead>Nhân viên thu</TableHead>
                 <TableHead>Ghi chú</TableHead>
+                <TableHead className="text-right">Phiếu thu</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {payments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                     Chưa có phiếu thu nào.
                   </TableCell>
                 </TableRow>
               ) : (
-                payments.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.code}</TableCell>
-                    <TableCell>{formatDate(p.paid_at)}</TableCell>
-                    <TableCell className="num text-right">{formatMoney(p.amount)}</TableCell>
-                    <TableCell>{PAYMENT_METHOD_LABEL[p.method]}</TableCell>
-                    <TableCell>{p.collector_name ?? "—"}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{p.note ?? "—"}</TableCell>
-                  </TableRow>
-                ))
+                payments.map((p, i) => {
+                  const periodIndex = payments.length - i;
+                  const paidUpTo =
+                    Number(contract.down_payment) +
+                    payments
+                      .slice(i)
+                      .reduce((s, x) => s + Number(x.amount), 0);
+                  const remainingAfter = Math.max(0, Number(contract.total_value) - paidUpTo);
+                  return (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.code}</TableCell>
+                      <TableCell>{formatDate(p.paid_at)}</TableCell>
+                      <TableCell className="num text-right">{formatMoney(p.amount)}</TableCell>
+                      <TableCell>{PAYMENT_METHOD_LABEL[p.method]}</TableCell>
+                      <TableCell>{p.collector_name ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {p.note ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <ReceiptPdfButton
+                          payment={p}
+                          contract={contract}
+                          remainingAfter={remainingAfter}
+                          periodIndex={periodIndex}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
+
             </TableBody>
           </Table>
         </div>
