@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMachinesRouteImport } from './routes/_authenticated/machines'
 import { Route as AuthenticatedContractsContractIdRouteImport } from './routes/_authenticated/contracts.$contractId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,6 +41,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMachinesRoute = AuthenticatedMachinesRouteImport.update({
+  id: '/machines',
+  path: '/machines',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedContractsContractIdRoute =
   AuthenticatedContractsContractIdRouteImport.update({
     id: '/contracts/$contractId',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/machines': typeof AuthenticatedMachinesRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
 export interface FileRoutesByTo {
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/machines': typeof AuthenticatedMachinesRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
 export interface FileRoutesById {
@@ -68,14 +76,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/machines': typeof AuthenticatedMachinesRoute
   '/_authenticated/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/customers' | '/dashboard' | '/contracts/$contractId'
+    | '/'
+    | '/auth'
+    | '/customers'
+    | '/dashboard'
+    | '/machines'
+    | '/contracts/$contractId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/customers' | '/dashboard' | '/contracts/$contractId'
+  to:
+    | '/'
+    | '/auth'
+    | '/customers'
+    | '/dashboard'
+    | '/machines'
+    | '/contracts/$contractId'
   id:
     | '__root__'
     | '/'
@@ -83,6 +103,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/customers'
     | '/_authenticated/dashboard'
+    | '/_authenticated/machines'
     | '/_authenticated/contracts/$contractId'
   fileRoutesById: FileRoutesById
 }
@@ -129,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/machines': {
+      id: '/_authenticated/machines'
+      path: '/machines'
+      fullPath: '/machines'
+      preLoaderRoute: typeof AuthenticatedMachinesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/contracts/$contractId': {
       id: '/_authenticated/contracts/$contractId'
       path: '/contracts/$contractId'
@@ -142,12 +170,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMachinesRoute: typeof AuthenticatedMachinesRoute
   AuthenticatedContractsContractIdRoute: typeof AuthenticatedContractsContractIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMachinesRoute: AuthenticatedMachinesRoute,
   AuthenticatedContractsContractIdRoute: AuthenticatedContractsContractIdRoute,
 }
 
