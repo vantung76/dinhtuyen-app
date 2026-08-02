@@ -6,6 +6,7 @@ import { Printer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { sendWelcomeEmail } from "@/lib/email.functions";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { useAuth } from "@/hooks/useAuth";
 
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,29 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [sentConfirm, setSentConfirm] = useState(false);
   const sendWelcome = useServerFn(sendWelcomeEmail);
+  const sendReset = useServerFn(requestPasswordReset);
+  const [sentReset, setSentReset] = useState(false);
+
+  async function handleForgotPassword() {
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email trước khi yêu cầu đặt lại mật khẩu");
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendReset({ data: { email, siteUrl: window.location.origin } });
+      setSentReset(true);
+      toast.success("Đã gửi email đặt lại mật khẩu", {
+        description: "Vui lòng kiểm tra hộp thư (kể cả mục Quảng cáo/Spam).",
+      });
+    } catch (err) {
+      toast.error("Không gửi được email đặt lại mật khẩu", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
 
   useEffect(() => {
@@ -152,6 +176,20 @@ function AuthPage() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   Đăng nhập
                 </Button>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                  className="w-full text-center text-sm font-medium text-primary underline-offset-4 hover:underline disabled:opacity-60"
+                >
+                  Quên mật khẩu?
+                </button>
+                {sentReset ? (
+                  <p className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+                    Nếu email <strong>{email}</strong> tồn tại trong hệ thống, chúng tôi đã gửi liên
+                    kết đặt lại mật khẩu từ info@dinhtuyen.com.
+                  </p>
+                ) : null}
               </form>
             </TabsContent>
 
