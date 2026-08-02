@@ -60,6 +60,16 @@ function statusVariant(status: ContractStatus) {
   return "bg-primary/10 text-primary border-primary/25";
 }
 
+/** Hợp đồng quá hạn hoặc sắp đến hạn trong 10 ngày tới */
+function isDueSoon(c: ContractSummary) {
+  if (c.status === "qua_han") return true;
+  const due = new Date(nextDueDate(c.start_date, c.payments_count, c.months));
+  const diff = (due.getTime() - Date.now()) / 86_400_000;
+  return diff <= 10;
+}
+
+
+
 function DashboardPage() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
