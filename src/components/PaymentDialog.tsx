@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatMoney, makeCode } from "@/lib/format";
+import { sendPaymentReceipt } from "@/lib/email.functions";
 import type { ContractSummary, PaymentMethod } from "@/lib/types";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
