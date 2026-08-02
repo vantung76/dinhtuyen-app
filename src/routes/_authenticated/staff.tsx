@@ -51,6 +51,20 @@ type StaffRow = {
 function StaffPage() {
   const { isAdmin, user } = useAuth();
   const queryClient = useQueryClient();
+  const invite = useServerFn(sendStaffInvite);
+  const [inviteForm, setInviteForm] = useState({ email: "", fullName: "", role: "staff" as "staff" | "admin" });
+
+  const sendInvite = useMutation({
+    mutationFn: async () => invite({ data: inviteForm }),
+    onSuccess: (r) => {
+      toast.success(`Đã gửi thư kích hoạt tới ${r.to}`);
+      setInviteForm({ email: "", fullName: "", role: "staff" });
+      void queryClient.invalidateQueries({ queryKey: ["staff"] });
+    },
+    onError: (e: Error) => toast.error("Không gửi được thư mời", { description: e.message }),
+  });
+
+
 
   const { data: staff = [], isLoading } = useQuery({
     queryKey: ["staff"],
