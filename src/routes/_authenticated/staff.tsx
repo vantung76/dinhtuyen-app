@@ -75,12 +75,14 @@ function StaffPage() {
       ]);
       if (pErr) throw pErr;
       if (rErr) throw rErr;
-      return (profiles ?? []).map((p) => ({
-        ...(p as unknown as Omit<StaffRow, "roles">),
-        roles: (roles ?? [])
-          .filter((r) => (r as { user_id: string }).user_id === (p as { id: string }).id)
-          .map((r) => (r as { role: string }).role),
-      })) as StaffRow[];
+      return (profiles ?? [])
+        .map((p) => ({
+          ...(p as unknown as Omit<StaffRow, "roles">),
+          roles: (roles ?? [])
+            .filter((r) => (r as { user_id: string }).user_id === (p as { id: string }).id)
+            .map((r) => (r as { role: string }).role),
+        }))
+        .filter((s) => s.roles.some((r) => r === "admin" || r === "staff")) as StaffRow[];
     },
   });
 
