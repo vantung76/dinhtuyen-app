@@ -16,6 +16,7 @@ const NAV = [
   { to: "/customers", label: "Khách hàng", icon: Users },
   { to: "/machines", label: "Máy photocopy", icon: Boxes },
   { to: "/staff", label: "Nhân sự", icon: ShieldCheck, adminOnly: true },
+  { to: "/access", label: "Phân quyền", icon: ShieldCheck },
 ] as const;
 
 function AuthenticatedLayout() {
