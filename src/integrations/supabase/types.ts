@@ -14,16 +14,308 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contracts: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          down_payment: number
+          end_date: string
+          id: string
+          interest_rate: number
+          machine_id: string
+          monthly_payment: number | null
+          months: number
+          note: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["contract_status"]
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          down_payment?: number
+          end_date: string
+          id?: string
+          interest_rate?: number
+          machine_id: string
+          monthly_payment?: number | null
+          months: number
+          note?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["contract_status"]
+          total_value: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          down_payment?: number
+          end_date?: string
+          id?: string
+          interest_rate?: number
+          machine_id?: string
+          monthly_payment?: number | null
+          months?: number
+          note?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["contract_status"]
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          address: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          name: string
+          note: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          note?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          note?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      machines: {
+        Row: {
+          brand: string | null
+          code: string
+          created_at: string
+          id: string
+          name: string
+          note: string | null
+          price: number
+          serial_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          note?: string | null
+          price?: number
+          serial_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          note?: string | null
+          price?: number
+          serial_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          code: string
+          collector_id: string | null
+          collector_name: string | null
+          contract_id: string
+          created_at: string
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          note: string | null
+          paid_at: string
+        }
+        Insert: {
+          amount: number
+          code: string
+          collector_id?: string | null
+          collector_name?: string | null
+          contract_id: string
+          created_at?: string
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          note?: string | null
+          paid_at?: string
+        }
+        Update: {
+          amount?: number
+          code?: string
+          collector_id?: string | null
+          collector_name?: string | null
+          contract_id?: string
+          created_at?: string
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          note?: string | null
+          paid_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contract_summaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      contract_summaries: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          customer_id: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          down_payment: number | null
+          end_date: string | null
+          id: string | null
+          interest_rate: number | null
+          last_payment_date: string | null
+          machine_code: string | null
+          machine_id: string | null
+          machine_name: string | null
+          monthly_payment: number | null
+          months: number | null
+          note: string | null
+          payments_count: number | null
+          payments_total: number | null
+          remaining: number | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["contract_status"] | null
+          total_paid: number | null
+          total_value: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "staff"
+      contract_status: "dang_tra_gop" | "da_hoan_thanh" | "qua_han"
+      payment_method: "tien_mat" | "chuyen_khoan"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +442,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "staff"],
+      contract_status: ["dang_tra_gop", "da_hoan_thanh", "qua_han"],
+      payment_method: ["tien_mat", "chuyen_khoan"],
+    },
   },
 } as const
