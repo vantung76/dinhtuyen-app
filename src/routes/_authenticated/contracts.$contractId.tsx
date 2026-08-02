@@ -99,16 +99,26 @@ function ContractDetail() {
           </p>
         </div>
         {Number(contract.remaining) > 0 && (
-          <PaymentDialog
-            contract={contract}
-            trigger={
-              <Button>
-                <Wallet /> Cập nhật thanh toán
-              </Button>
-            }
-          />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              disabled={reminder.isPending}
+              onClick={() => reminder.mutate()}
+            >
+              <Mail /> Gửi email nhắc đóng tiền
+            </Button>
+            <PaymentDialog
+              contract={contract}
+              trigger={
+                <Button>
+                  <Wallet /> Cập nhật thanh toán
+                </Button>
+              }
+            />
+          </div>
         )}
       </div>
+
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="stat-card">
