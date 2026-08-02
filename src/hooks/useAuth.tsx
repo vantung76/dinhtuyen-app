@@ -2,13 +2,16 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-type Role = "admin" | "staff";
+type Role = "admin" | "staff" | "customer";
 
 type AuthValue = {
   session: Session | null;
   user: User | null;
   roles: Role[];
   isAdmin: boolean;
+  isCustomer: boolean;
+  isStaff: boolean;
+  rolesLoaded: boolean;
   fullName: string;
   loading: boolean;
   signOut: () => Promise<void>;
