@@ -113,6 +113,7 @@ function ContractDetail() {
         </div>
         {Number(contract.remaining) > 0 && (
           <div className="flex flex-wrap gap-2">
+            <ZaloReminderButton contract={contract} size="default" />
             <Button
               variant="outline"
               disabled={reminder.isPending}
