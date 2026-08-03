@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { activationEmail, sendResendEmail } from "./email.server";
+import { createAppAuthLink, getPublicSiteUrl } from "./auth-link.server";
 
 type Client = SupabaseClient<Database>;
 
