@@ -63,6 +63,20 @@ function ContractDetail() {
     },
   });
 
+  const { data: machine } = useQuery({
+    queryKey: ["machine", contract?.machine_id],
+    enabled: Boolean(contract?.machine_id),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("machines")
+        .select("*")
+        .eq("id", contract!.machine_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data as unknown as Machine | null;
+    },
+  });
+
   const { data: payments = [] } = useQuery({
     queryKey: ["payments", contractId],
     queryFn: async () => {
@@ -75,6 +89,7 @@ function ContractDetail() {
       return data as unknown as Payment[];
     },
   });
+
 
   const sendReminderFn = useServerFn(sendPaymentReminder);
   const reminder = useMutation({
