@@ -2,13 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { MailCheck, Plus, Search, Trash2 } from "lucide-react";
+import { AtSign, MailCheck, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate, makeCode } from "@/lib/format";
 import { sendCustomerActivation } from "@/lib/email.functions";
+import { changeCustomerEmail } from "@/lib/customer.functions";
 import type { Customer } from "@/lib/types";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,10 +56,14 @@ function CustomersPage() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const sendActivation = useServerFn(sendCustomerActivation);
+  const changeEmail = useServerFn(changeCustomerEmail);
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
+  const [emailTarget, setEmailTarget] = useState<Customer | null>(null);
+  const [newEmail, setNewEmail] = useState("");
+
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["customers"],
@@ -98,6 +104,22 @@ function CustomersPage() {
     onSuccess: (r) => toast.success(`Đã gửi email kích hoạt tới ${r.to}`),
     onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
   });
+
+  const updateEmail = useMutation({
+    mutationFn: async (keepAccount: boolean) =>
+      changeEmail({
+        data: { customerId: emailTarget!.id, newEmail: newEmail.trim(), keepAccount },
+      }),
+    onSuccess: (r) => {
+      toast.success(r.message);
+      void queryClient.invalidateQueries({ queryKey: ["customers"] });
+      setEmailTarget(null);
+      setNewEmail("");
+    },
+    onError: (e: Error) => toast.error("Không đổi được email", { description: e.message }),
+  });
+
+
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
@@ -255,6 +277,18 @@ function CustomersPage() {
                     >
                       <MailCheck className="size-4 text-primary" />
                     </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Đổi email khách hàng"
+                      title="Đổi email khách hàng"
+                      onClick={() => {
+                        setEmailTarget(c);
+                        setNewEmail("");
+                      }}
+                    >
+                      <AtSign className="size-4 text-primary" />
+                    </Button>
                     {isAdmin && (
                       <Button
                         size="icon"
@@ -273,6 +307,69 @@ function CustomersPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog
+        open={!!emailTarget}
+        onOpenChange={(v) => {
+          if (!v) setEmailTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Đổi email khách hàng</DialogTitle>
+            <DialogDescription>
+              Hợp đồng, phiếu thu và lịch sử trả góp của khách được giữ nguyên khi đổi email.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+              <div className="font-medium">{emailTarget?.name}</div>
+              <div className="text-muted-foreground">
+                Email hiện tại: {emailTarget?.email ?? "chưa có"}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-email">Email mới</Label>
+              <Input
+                id="new-email"
+                type="email"
+                placeholder="email-moi@example.com"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+              />
+            </div>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <strong className="text-foreground">Giữ tài khoản cũ:</strong> chỉ đổi email đăng
+                nhập, khách vẫn dùng mật khẩu cũ để vào cổng thông tin.
+              </li>
+              <li>
+                <strong className="text-foreground">Tạo tài khoản mới:</strong> gỡ liên kết tài khoản
+                cũ và gửi thư kích hoạt tới email mới để khách đặt mật khẩu.
+              </li>
+            </ul>
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => setEmailTarget(null)}>
+              Huỷ
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={updateEmail.isPending || !newEmail.trim()}
+              onClick={() => updateEmail.mutate(false)}
+            >
+              Đổi & gửi kích hoạt mới
+            </Button>
+            <Button
+              disabled={updateEmail.isPending || !newEmail.trim()}
+              onClick={() => updateEmail.mutate(true)}
+            >
+              Đổi & giữ tài khoản cũ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
