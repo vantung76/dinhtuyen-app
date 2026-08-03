@@ -105,6 +105,22 @@ function CustomersPage() {
     onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
   });
 
+  const updateEmail = useMutation({
+    mutationFn: async (keepAccount: boolean) =>
+      changeEmail({
+        data: { customerId: emailTarget!.id, newEmail: newEmail.trim(), keepAccount },
+      }),
+    onSuccess: (r) => {
+      toast.success(r.message);
+      void queryClient.invalidateQueries({ queryKey: ["customers"] });
+      setEmailTarget(null);
+      setNewEmail("");
+    },
+    onError: (e: Error) => toast.error("Không đổi được email", { description: e.message }),
+  });
+
+
+
   const remove = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("customers").delete().eq("id", id);
