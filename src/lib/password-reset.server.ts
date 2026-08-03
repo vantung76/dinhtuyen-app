@@ -1,4 +1,5 @@
 import { passwordResetEmail, sendResendEmail } from "./email.server";
+import { createAppAuthLink } from "./auth-link.server";
 
 export async function sendPasswordReset(input: { email: string; siteUrl?: string }) {
   const email = input.email.trim().toLowerCase();
@@ -15,7 +16,7 @@ export async function sendPasswordReset(input: { email: string; siteUrl?: string
   });
 
   // Không tiết lộ email có tồn tại hay không.
-  const actionLink = data?.properties?.action_link;
+  const actionLink = createAppAuthLink(base, data?.properties, "/reset-password");
   if (error || !actionLink) return { sent: true };
 
   const fullName =
