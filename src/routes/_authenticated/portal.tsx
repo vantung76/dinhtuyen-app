@@ -102,6 +102,19 @@ function CustomerPortal() {
     return <p className="text-sm text-muted-foreground">Đang tải dữ liệu của bạn…</p>;
   }
 
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-destructive/40 bg-card p-8 text-center shadow-panel">
+        <h1 className="text-lg font-semibold">Không tải được dữ liệu</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {(error as Error).message || "Vui lòng thử tải lại trang hoặc liên hệ nhân viên hỗ trợ."}
+        </p>
+      </div>
+    );
+  }
+
+
+
   if (contracts.length === 0) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
