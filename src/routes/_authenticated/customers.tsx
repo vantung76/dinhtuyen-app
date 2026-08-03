@@ -56,10 +56,14 @@ function CustomersPage() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const sendActivation = useServerFn(sendCustomerActivation);
+  const changeEmail = useServerFn(changeCustomerEmail);
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
+  const [emailTarget, setEmailTarget] = useState<Customer | null>(null);
+  const [newEmail, setNewEmail] = useState("");
+
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["customers"],
