@@ -2,13 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { MailCheck, Plus, Search, Trash2 } from "lucide-react";
+import { AtSign, MailCheck, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate, makeCode } from "@/lib/format";
 import { sendCustomerActivation } from "@/lib/email.functions";
+import { changeCustomerEmail } from "@/lib/customer.functions";
 import type { Customer } from "@/lib/types";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
