@@ -58,6 +58,11 @@ function MachinesPage() {
     serial_number: "",
     price: "",
     note: "",
+    warranty_start_date: "",
+    warranty_months: "24",
+    warranty_copies: "60000",
+    counter_start: "0",
+    counter_current: "0",
   });
 
   const { data: machines = [], isLoading } = useQuery({
@@ -82,17 +87,34 @@ function MachinesPage() {
         serial_number: form.serial_number || null,
         price: Number(form.price) || 0,
         note: form.note || null,
+        warranty_start_date: form.warranty_start_date || null,
+        warranty_months: Number(form.warranty_months) || 0,
+        warranty_copies: Number(form.warranty_copies) || 0,
+        counter_start: Number(form.counter_start) || 0,
+        counter_current: Number(form.counter_current) || 0,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Đã thêm máy");
       void queryClient.invalidateQueries({ queryKey: ["machines"] });
-      setForm({ name: "", brand: "", serial_number: "", price: "", note: "" });
+      setForm({
+        name: "",
+        brand: "",
+        serial_number: "",
+        price: "",
+        note: "",
+        warranty_start_date: "",
+        warranty_months: "24",
+        warranty_copies: "60000",
+        counter_start: "0",
+        counter_current: "0",
+      });
       setOpen(false);
     },
     onError: (e: Error) => toast.error("Không lưu được", { description: e.message }),
   });
+
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
