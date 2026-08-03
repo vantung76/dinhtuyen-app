@@ -12,11 +12,11 @@ export const Route = createFileRoute("/")({
         content:
           "Tạo hợp đồng trả góp, tự động tính tiền đóng hằng tháng, cập nhật phiếu thu và theo dõi công nợ máy photocopy cho từng khách hàng.",
       },
-      { property: "og:title", content: "Quản lý trả góp máy photocopy" },
+      { property: "og:title", content: "Quản lý trả góp máy photocopy | Hệ thống nội bộ" },
       {
         property: "og:description",
         content:
-          "Hợp đồng trả góp, lịch sử thanh toán và công nợ máy photocopy trong một màn hình duy nhất.",
+          "Tạo hợp đồng trả góp, tự động tính tiền đóng hằng tháng, cập nhật phiếu thu và theo dõi công nợ máy photocopy cho từng khách hàng.",
       },
     ],
   }),
