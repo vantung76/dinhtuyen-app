@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Trash2, Wallet } from "lucide-react";
+import { Plus, Search, Trash2, TriangleAlert, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,7 @@ import type { ContractStatus, ContractSummary } from "@/lib/types";
 import { ContractFormDialog } from "@/components/ContractFormDialog";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ZaloReminderButton } from "@/components/ZaloReminderButton";
+import { WarrantyAlertTable, useWarrantyAlerts } from "@/components/WarrantyAlerts";
 import { nextDueDate } from "@/lib/zalo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +76,7 @@ function DashboardPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"all" | ContractStatus>("all");
+  const { alerts: warrantyAlerts, isLoading: warrantyLoading } = useWarrantyAlerts();
 
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["contracts"],
@@ -138,6 +140,30 @@ function DashboardPage() {
             </Button>
           }
         />
+      </div>
+
+      <div
+        className={
+          warrantyAlerts.length > 0
+            ? "stat-card border-destructive/40 bg-destructive/10"
+            : "stat-card"
+        }
+      >
+        <p className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+          <TriangleAlert className="size-4" /> Số máy sắp hết hạn bảo hành
+        </p>
+        <p
+          className={
+            warrantyAlerts.length > 0
+              ? "num mt-2 text-3xl font-bold text-destructive"
+              : "num mt-2 text-3xl font-bold"
+          }
+        >
+          {warrantyAlerts.length}
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Còn ≤ 30 ngày hoặc ≤ 5.000 bản chụp — cần liên hệ gia hạn bảo trì.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
@@ -286,6 +312,8 @@ function DashboardPage() {
           </TableBody>
         </Table>
       </div>
+
+      <WarrantyAlertTable alerts={warrantyAlerts} isLoading={warrantyLoading} />
 
       {!isAdmin && (
         <p className="text-xs text-muted-foreground">
