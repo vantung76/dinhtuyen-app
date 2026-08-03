@@ -132,7 +132,7 @@ function CustomersPage() {
   });
 
   const activate = useMutation({
-    mutationFn: async (id: string) => sendActivation({ data: { customerId: id } }),
+    mutationFn: async (id: string) => sendActivation({ data: { customerId: id , siteUrl: window.location.origin } }),
     onSuccess: (r) => toast.success(`Đã gửi email kích hoạt tới ${r.to}`),
     onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
   });

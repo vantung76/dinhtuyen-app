@@ -125,7 +125,7 @@ export async function sendPaymentReminder(
 export async function sendCustomerActivation(
   supabase: Client,
   userId: string,
-  input: { customerId: string },
+  input: { customerId: string; siteUrl?: string },
 ) {
   await assertStaff(supabase, userId);
 
@@ -138,8 +138,8 @@ export async function sendCustomerActivation(
   if (!customer?.email) throw new Error("Khách hàng chưa có địa chỉ email");
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "";
-  const redirectTo = siteUrl ? `${siteUrl}/portal` : undefined;
+  const siteUrl = (input.siteUrl?.trim() || process.env["PUBLIC_SITE_URL"] || "").replace(/\/$/, "");
+  const redirectTo = siteUrl ? `${siteUrl}/reset-password` : undefined;
 
   const invite = await supabaseAdmin.auth.admin.generateLink({
     type: "invite",
@@ -170,7 +170,7 @@ export async function sendCustomerActivation(
 export async function sendStaffInvite(
   supabase: Client,
   userId: string,
-  input: { email: string; fullName?: string; role?: "admin" | "staff" },
+  input: { email: string; fullName?: string; role?: "admin" | "staff"; siteUrl?: string },
 ) {
   const { data: isAdmin, error: roleErr } = await supabase.rpc("has_role", {
     _user_id: userId,
@@ -185,8 +185,8 @@ export async function sendStaffInvite(
   const fullName = input.fullName?.trim() || email.split("@")[0]!;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "";
-  const redirectTo = siteUrl ? `${siteUrl}/dashboard` : undefined;
+  const siteUrl = (input.siteUrl?.trim() || process.env["PUBLIC_SITE_URL"] || "").replace(/\/$/, "");
+  const redirectTo = siteUrl ? `${siteUrl}/reset-password` : undefined;
 
   const invite = await supabaseAdmin.auth.admin.generateLink({
     type: "invite",

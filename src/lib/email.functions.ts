@@ -25,7 +25,7 @@ export const sendPaymentReminder = createServerFn({ method: "POST" })
 
 export const sendCustomerActivation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { customerId: string }) => {
+  .inputValidator((data: { customerId: string; siteUrl?: string }) => {
     if (!data?.customerId) throw new Error("Thiếu mã khách hàng");
     return data;
   })
@@ -36,7 +36,7 @@ export const sendCustomerActivation = createServerFn({ method: "POST" })
 
 export const sendStaffInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { email: string; fullName?: string; role?: "admin" | "staff" }) => {
+  .inputValidator((data: { email: string; fullName?: string; role?: "admin" | "staff"; siteUrl?: string }) => {
     if (!data?.email) throw new Error("Thiếu địa chỉ email");
     return data;
   })
