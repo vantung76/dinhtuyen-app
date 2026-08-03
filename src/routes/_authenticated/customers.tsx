@@ -140,7 +140,7 @@ function CustomersPage() {
   const updateEmail = useMutation({
     mutationFn: async (keepAccount: boolean) =>
       changeEmail({
-        data: { customerId: emailTarget!.id, newEmail: newEmail.trim(), keepAccount , siteUrl: window.location.origin },
+        data: { customerId: emailTarget!.id, newEmail: newEmail.trim(), keepAccount },
       }),
     onSuccess: (r) => {
       toast.success(r.message);
@@ -155,7 +155,7 @@ function CustomersPage() {
 
   const remove = useMutation({
     mutationFn: async (vars: { id: string; deleteAccount: boolean }) =>
-      deleteCustomerFn({ data: { customerId: vars.id, deleteAccount: vars.deleteAccount , siteUrl: window.location.origin } }),
+      deleteCustomerFn({ data: { customerId: vars.id, deleteAccount: vars.deleteAccount } }),
     onSuccess: (r) => {
       toast.success(r.message);
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
