@@ -46,6 +46,7 @@ function nextDueDate(c: ContractSummary): string | null {
 
 function CustomerPortal() {
   const { user, fullName } = useAuth();
+  console.log("PORTAL_DEBUG", { uid: user?.id ?? null });
 
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["portal-contracts", user?.id],
