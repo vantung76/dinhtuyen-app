@@ -12,7 +12,7 @@ export function createAppAuthLink(
   const type = properties?.verification_type;
   if (!siteUrl || !tokenHash || !type) return null;
 
-  const url = new URL("/auth/confirm", siteUrl);
+  const url = new URL("/activate-account", siteUrl);
   url.searchParams.set("token_hash", tokenHash);
   url.searchParams.set("type", type);
   url.searchParams.set("next", next);
