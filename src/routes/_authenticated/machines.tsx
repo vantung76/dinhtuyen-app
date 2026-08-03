@@ -1,16 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatMoney, makeCode } from "@/lib/format";
+import { computeWarranty } from "@/lib/warranty";
 import type { Machine } from "@/lib/types";
+import { WarrantyPanel } from "@/components/WarrantyPanel";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
 import {
   Dialog,
   DialogContent,
@@ -52,12 +56,19 @@ function MachinesPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<Machine | null>(null);
+
   const [form, setForm] = useState({
     name: "",
     brand: "",
     serial_number: "",
     price: "",
     note: "",
+    warranty_start_date: "",
+    warranty_months: "24",
+    warranty_copies: "60000",
+    counter_start: "0",
+    counter_current: "0",
   });
 
   const { data: machines = [], isLoading } = useQuery({
@@ -82,17 +93,34 @@ function MachinesPage() {
         serial_number: form.serial_number || null,
         price: Number(form.price) || 0,
         note: form.note || null,
+        warranty_start_date: form.warranty_start_date || null,
+        warranty_months: Number(form.warranty_months) || 0,
+        warranty_copies: Number(form.warranty_copies) || 0,
+        counter_start: Number(form.counter_start) || 0,
+        counter_current: Number(form.counter_current) || 0,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Đã thêm máy");
       void queryClient.invalidateQueries({ queryKey: ["machines"] });
-      setForm({ name: "", brand: "", serial_number: "", price: "", note: "" });
+      setForm({
+        name: "",
+        brand: "",
+        serial_number: "",
+        price: "",
+        note: "",
+        warranty_start_date: "",
+        warranty_months: "24",
+        warranty_copies: "60000",
+        counter_start: "0",
+        counter_current: "0",
+      });
       setOpen(false);
     },
     onError: (e: Error) => toast.error("Không lưu được", { description: e.message }),
   });
+
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
@@ -176,7 +204,68 @@ function MachinesPage() {
                   {formatMoney(Number(form.price) || 0)}
                 </p>
               </div>
+              <div className="rounded-lg border border-border p-4">
+                <p className="mb-3 text-sm font-semibold">Thông tin bảo hành</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="wstart">Ngày bàn giao / kích hoạt</Label>
+                    <Input
+                      id="wstart"
+                      type="date"
+                      value={form.warranty_start_date}
+                      onChange={(e) => setForm({ ...form, warranty_start_date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wmonths">Thời hạn bảo hành (tháng)</Label>
+                    <Input
+                      id="wmonths"
+                      inputMode="numeric"
+                      placeholder="24"
+                      value={form.warranty_months}
+                      onChange={(e) =>
+                        setForm({ ...form, warranty_months: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wcopies">Số bản chụp bảo hành</Label>
+                    <Input
+                      id="wcopies"
+                      inputMode="numeric"
+                      placeholder="60000"
+                      value={form.warranty_copies}
+                      onChange={(e) =>
+                        setForm({ ...form, warranty_copies: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cstart">Counter khi bàn giao</Label>
+                    <Input
+                      id="cstart"
+                      inputMode="numeric"
+                      value={form.counter_start}
+                      onChange={(e) =>
+                        setForm({ ...form, counter_start: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="ccur">Counter hiện tại</Label>
+                    <Input
+                      id="ccur"
+                      inputMode="numeric"
+                      value={form.counter_current}
+                      onChange={(e) =>
+                        setForm({ ...form, counter_current: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="space-y-2">
+
                 <Label htmlFor="mnote">Ghi chú</Label>
                 <Textarea
                   id="mnote"
@@ -209,7 +298,7 @@ function MachinesPage() {
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
-        <Table className="min-w-[720px]">
+        <Table className="min-w-[880px]">
           <TableHeader>
             <TableRow>
               <TableHead>Mã máy</TableHead>
@@ -217,48 +306,80 @@ function MachinesPage() {
               <TableHead>Hãng</TableHead>
               <TableHead>Serial</TableHead>
               <TableHead className="text-right">Giá máy</TableHead>
-              {isAdmin && <TableHead className="text-right">Thao tác</TableHead>}
+              <TableHead>Bảo hành</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                   Đang tải…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                   Chưa có máy nào trong danh mục.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((m) => (
-                <TableRow key={m.id}>
-                  <TableCell className="font-medium">{m.code}</TableCell>
-                  <TableCell>{m.name}</TableCell>
-                  <TableCell>{m.brand ?? "—"}</TableCell>
-                  <TableCell>{m.serial_number ?? "—"}</TableCell>
-                  <TableCell className="num text-right">{formatMoney(m.price)}</TableCell>
-                  {isAdmin && (
+              filtered.map((m) => {
+                const info = computeWarranty(m);
+                return (
+                  <TableRow key={m.id}>
+                    <TableCell className="font-medium">{m.code}</TableCell>
+                    <TableCell>{m.name}</TableCell>
+                    <TableCell>{m.brand ?? "—"}</TableCell>
+                    <TableCell>{m.serial_number ?? "—"}</TableCell>
+                    <TableCell className="num text-right">{formatMoney(m.price)}</TableCell>
+                    <TableCell>
+                      <Badge className={info.className}>{info.label}</Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="Xoá máy"
-                        onClick={() => remove.mutate(m.id)}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDetail(m)}
+                        aria-label="Xem bảo hành"
                       >
-                        <Trash2 className="size-4 text-destructive" />
+                        <ShieldCheck className="size-4" /> Bảo hành
                       </Button>
+                      {isAdmin && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Xoá máy"
+                          onClick={() => remove.mutate(m.id)}
+                        >
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      )}
                     </TableCell>
-                  )}
-                </TableRow>
-              ))
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={detail !== null} onOpenChange={(o) => !o && setDetail(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{detail ? `${detail.name} (${detail.code})` : "Chi tiết thiết bị"}</DialogTitle>
+            <DialogDescription>
+              Theo dõi bảo hành theo thời gian và số bản chụp của thiết bị.
+            </DialogDescription>
+          </DialogHeader>
+          {detail && (
+            <WarrantyPanel
+              machine={filtered.find((m) => m.id === detail.id) ?? detail}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

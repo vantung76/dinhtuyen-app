@@ -12,10 +12,12 @@ import {
   formatDate,
   formatMoney,
 } from "@/lib/format";
-import type { ContractSummary, Payment } from "@/lib/types";
+import type { ContractSummary, Machine, Payment } from "@/lib/types";
 import { PaymentDialog } from "@/components/PaymentDialog";
+import { WarrantyPanel } from "@/components/WarrantyPanel";
 import { ZaloReminderButton } from "@/components/ZaloReminderButton";
 import { ReceiptPdfButton } from "@/components/ReceiptPdfButton";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -63,6 +65,20 @@ function ContractDetail() {
     },
   });
 
+  const { data: machine } = useQuery({
+    queryKey: ["machine", contract?.machine_id],
+    enabled: Boolean(contract?.machine_id),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("machines")
+        .select("*")
+        .eq("id", contract!.machine_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data as unknown as Machine | null;
+    },
+  });
+
   const { data: payments = [] } = useQuery({
     queryKey: ["payments", contractId],
     queryFn: async () => {
@@ -75,6 +91,7 @@ function ContractDetail() {
       return data as unknown as Payment[];
     },
   });
+
 
   const sendReminderFn = useServerFn(sendPaymentReminder);
   const reminder = useMutation({
@@ -197,6 +214,9 @@ function ContractDetail() {
           </p>
         )}
       </div>
+
+      {machine && <WarrantyPanel machine={machine} />}
+
 
       <div>
         <h2 className="mb-3 text-lg font-semibold">Lịch sử thanh toán</h2>

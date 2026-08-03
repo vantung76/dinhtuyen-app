@@ -132,6 +132,9 @@ export type Database = {
         Row: {
           brand: string | null
           code: string
+          counter_current: number
+          counter_start: number
+          counter_updated_at: string | null
           created_at: string
           id: string
           name: string
@@ -139,10 +142,16 @@ export type Database = {
           price: number
           serial_number: string | null
           updated_at: string
+          warranty_copies: number
+          warranty_months: number
+          warranty_start_date: string | null
         }
         Insert: {
           brand?: string | null
           code: string
+          counter_current?: number
+          counter_start?: number
+          counter_updated_at?: string | null
           created_at?: string
           id?: string
           name: string
@@ -150,10 +159,16 @@ export type Database = {
           price?: number
           serial_number?: string | null
           updated_at?: string
+          warranty_copies?: number
+          warranty_months?: number
+          warranty_start_date?: string | null
         }
         Update: {
           brand?: string | null
           code?: string
+          counter_current?: number
+          counter_start?: number
+          counter_updated_at?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -161,6 +176,9 @@ export type Database = {
           price?: number
           serial_number?: string | null
           updated_at?: string
+          warranty_copies?: number
+          warranty_months?: number
+          warranty_start_date?: string | null
         }
         Relationships: []
       }

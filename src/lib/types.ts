@@ -21,7 +21,14 @@ export type Machine = {
   price: number;
   note: string | null;
   created_at: string;
+  warranty_start_date: string | null;
+  warranty_months: number;
+  warranty_copies: number;
+  counter_start: number;
+  counter_current: number;
+  counter_updated_at: string | null;
 };
+
 
 export type ContractSummary = {
   id: string;
