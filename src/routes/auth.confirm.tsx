@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/auth/confirm")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>) => ({
-    token_hash: typeof search.token_hash === "string" ? search.token_hash : "",
-    type: typeof search.type === "string" ? search.type : "",
-    next: search.next === "/auth" ? "/auth" : "/reset-password",
+    token_hash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",
+    type: typeof search["type"] === "string" ? search["type"] : "",
+    next: search["next"] === "/auth" ? "/auth" : "/reset-password",
   }),
   head: () => ({
     meta: [
