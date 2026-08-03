@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CONTRACT_STATUS_LABEL,
   PAYMENT_METHOD_LABEL,
+  PAYMENT_TYPE_LABEL,
   formatDate,
   formatMoney,
 } from "@/lib/format";
@@ -105,6 +106,7 @@ function ContractDetail() {
   if (isLoading) return <p className="text-sm text-muted-foreground">Đang tải…</p>;
   if (!contract) return <p className="text-sm text-muted-foreground">Không tìm thấy hợp đồng.</p>;
 
+  const isOutright = contract.payment_type === "tra_thang";
   const progress =
     Number(contract.total_value) > 0
       ? Math.min(100, (Number(contract.total_paid) / Number(contract.total_value)) * 100)
@@ -122,7 +124,12 @@ function ContractDetail() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{contract.code}</h1>
-            <Badge variant="outline">{CONTRACT_STATUS_LABEL[contract.status]}</Badge>
+            <Badge variant="outline">
+              {isOutright ? "Trả thẳng (100%)" : CONTRACT_STATUS_LABEL[contract.status]}
+            </Badge>
+            <Badge variant="outline" className="border-primary/25 bg-primary/10 text-primary">
+              {PAYMENT_TYPE_LABEL[contract.payment_type ?? "tra_gop"]}
+            </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {contract.customer_name}
@@ -130,7 +137,7 @@ function ContractDetail() {
             ({contract.machine_code})
           </p>
         </div>
-        {Number(contract.remaining) > 0 && (
+        {!isOutright && Number(contract.remaining) > 0 && (
           <div className="flex flex-wrap gap-2">
             <ZaloReminderButton contract={contract} size="default" />
             <Button
@@ -153,6 +160,20 @@ function ContractDetail() {
       </div>
 
 
+      {isOutright ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="stat-card">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Tổng giá trị máy
+            </p>
+            <p className="num mt-2 text-lg font-bold">{formatMoney(contract.total_value)}</p>
+          </div>
+          <div className="stat-card">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Ngày mua máy</p>
+            <p className="mt-2 text-lg font-bold">{formatDate(contract.start_date)}</p>
+          </div>
+        </div>
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <div className="stat-card">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Tổng giá trị máy</p>
@@ -173,7 +194,9 @@ function ContractDetail() {
           <p className="num mt-2 text-lg font-bold">{formatMoney(contract.remaining)}</p>
         </div>
       </div>
+      )}
 
+      {!isOutright && (
       <div className="stat-card">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Tiến độ thanh toán</span>
@@ -214,10 +237,12 @@ function ContractDetail() {
           </p>
         )}
       </div>
+      )}
 
       {machine && <WarrantyPanel machine={machine} />}
 
 
+      {!isOutright && (
       <div>
         <h2 className="mb-3 text-lg font-semibold">Lịch sử thanh toán</h2>
         <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
@@ -276,6 +301,7 @@ function ContractDetail() {
           </Table>
         </div>
       </div>
+      )}
     </div>
   );
 }

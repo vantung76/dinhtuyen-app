@@ -10,7 +10,8 @@ import {
   formatDate,
   formatMoney,
 } from "@/lib/format";
-import type { ContractSummary, Payment } from "@/lib/types";
+import type { ContractSummary, Machine, Payment } from "@/lib/types";
+import { WarrantyPanel } from "@/components/WarrantyPanel";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
@@ -60,6 +61,17 @@ function CustomerPortal() {
   });
 
   const contractIds = contracts.map((c) => c.id);
+  const machineIds = contracts.map((c) => c.machine_id);
+
+  const { data: machines = [] } = useQuery({
+    queryKey: ["portal-machines", machineIds.join(",")],
+    enabled: machineIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("machines").select("*").in("id", machineIds);
+      if (error) throw error;
+      return (data ?? []) as unknown as Machine[];
+    },
+  });
 
   const { data: payments = [] } = useQuery({
     queryKey: ["portal-payments", contractIds.join(",")],
@@ -87,6 +99,56 @@ function CustomerPortal() {
           Tài khoản của bạn chưa được gắn với hợp đồng trả góp nào. Vui lòng liên hệ nhân viên phụ
           trách để được hỗ trợ.
         </p>
+      </div>
+    );
+  }
+
+  const isOutright =
+    contracts.length > 0 &&
+    contracts.every(
+      (c) => c.customer_payment_type === "tra_thang" || c.payment_type === "tra_thang",
+    );
+
+  if (isOutright) {
+    return (
+      <div className="space-y-6">
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-bold sm:text-2xl">Cổng thông tin khách hàng</h1>
+            <p className="truncate text-sm text-muted-foreground">{fullName}</p>
+          </div>
+          <Badge variant="outline" className="shrink-0">
+            Trả thẳng (100%)
+          </Badge>
+        </header>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">Máy photocopy của bạn</h2>
+          {contracts.map((c) => {
+            const machine = machines.find((m) => m.id === c.machine_id);
+            return (
+              <div key={c.id} className="space-y-3">
+                <article className="stat-card">
+                  <p className="font-semibold">{c.machine_name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {c.code} · {c.machine_code}
+                  </p>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                    <div>
+                      <dt className="text-muted-foreground">Ngày mua / bàn giao</dt>
+                      <dd className="font-medium">{formatDate(c.start_date)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Counter hiện tại</dt>
+                      <dd className="num font-medium">{machine?.counter_current ?? "—"}</dd>
+                    </div>
+                  </dl>
+                </article>
+                {machine && <WarrantyPanel machine={machine} />}
+              </div>
+            );
+          })}
+        </section>
       </div>
     );
   }

@@ -60,3 +60,8 @@ export function makeCode(prefix: string): string {
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `${prefix}-${stamp}-${rand}`;
 }
+
+export const PAYMENT_TYPE_LABEL: Record<string, string> = {
+  tra_gop: "Trả góp",
+  tra_thang: "Trả thẳng (100%)",
+};

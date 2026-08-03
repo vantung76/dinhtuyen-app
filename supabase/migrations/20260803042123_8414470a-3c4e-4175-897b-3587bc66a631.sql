@@ -1,0 +1,1 @@
+ALTER VIEW public.contract_summaries SET (security_invoker = on);

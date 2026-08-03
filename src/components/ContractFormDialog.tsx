@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { addMonths, formatMoney, makeCode, monthlyPayment } from "@/lib/format";
-import type { Customer, Machine } from "@/lib/types";
+import type { Customer, Machine, PaymentType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +32,7 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
   const { user } = useAuth();
 
   const [customerId, setCustomerId] = useState("");
+  const [paymentType, setPaymentType] = useState<PaymentType>("tra_gop");
   const [machineId, setMachineId] = useState("");
   const [totalValue, setTotalValue] = useState("");
   const [downPayment, setDownPayment] = useState("0");
@@ -58,12 +59,13 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
     },
   });
 
+  const isOutright = paymentType === "tra_thang";
   const total = Number(totalValue) || 0;
-  const down = Number(downPayment) || 0;
-  const m = Number(months) || 0;
-  const rate = Number(interestRate) || 0;
-  const perMonth = monthlyPayment(total, down, m, rate);
-  const endDate = m > 0 ? addMonths(startDate, m) : startDate;
+  const down = isOutright ? total : Number(downPayment) || 0;
+  const m = isOutright ? 1 : Number(months) || 0;
+  const rate = isOutright ? 0 : Number(interestRate) || 0;
+  const perMonth = isOutright ? 0 : monthlyPayment(total, down, m, rate);
+  const endDate = isOutright ? startDate : m > 0 ? addMonths(startDate, m) : startDate;
 
   const createContract = useMutation({
     mutationFn: async () => {
@@ -79,6 +81,8 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
         start_date: startDate,
         end_date: endDate,
         note: note || null,
+        payment_type: paymentType,
+        status: isOutright ? ("da_hoan_thanh" as const) : ("dang_tra_gop" as const),
         created_by: user?.id ?? null,
       });
       if (error) throw error;
@@ -88,6 +92,7 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
       void queryClient.invalidateQueries({ queryKey: ["contracts"] });
       setOpen(false);
       setCustomerId("");
+      setPaymentType("tra_gop");
       setMachineId("");
       setTotalValue("");
       setDownPayment("0");
@@ -105,16 +110,24 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Tạo hợp đồng trả góp</DialogTitle>
+          <DialogTitle>Tạo hợp đồng mua máy</DialogTitle>
           <DialogDescription>
-            Chọn khách hàng và máy, hệ thống sẽ tự tính số tiền phải đóng mỗi tháng.
+            Chọn hình thức thanh toán: trả góp (hệ thống tự tính tiền đóng mỗi tháng) hoặc trả thẳng
+            100%.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Khách hàng</Label>
-            <Select value={customerId} onValueChange={setCustomerId}>
+            <Select
+              value={customerId}
+              onValueChange={(v) => {
+                setCustomerId(v);
+                const c = customers.find((x) => x.id === v);
+                if (c?.payment_type) setPaymentType(c.payment_type);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Chọn khách hàng" />
               </SelectTrigger>
@@ -124,6 +137,19 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
                     {c.name} {c.phone ? `· ${c.phone}` : ""}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Hình thức thanh toán</Label>
+            <Select value={paymentType} onValueChange={(v) => setPaymentType(v as PaymentType)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn hình thức" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tra_gop">Trả góp</SelectItem>
+                <SelectItem value="tra_thang">Trả thẳng (100%)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -161,33 +187,37 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
                 onChange={(e) => setTotalValue(e.target.value.replace(/\D/g, ""))}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="down">Số tiền trả trước (VNĐ)</Label>
-              <Input
-                id="down"
-                inputMode="numeric"
-                value={downPayment}
-                onChange={(e) => setDownPayment(e.target.value.replace(/\D/g, ""))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="months">Số tháng trả góp</Label>
-              <Input
-                id="months"
-                inputMode="numeric"
-                value={months}
-                onChange={(e) => setMonths(e.target.value.replace(/\D/g, ""))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="rate">Lãi suất/tháng (%)</Label>
-              <Input
-                id="rate"
-                inputMode="decimal"
-                value={interestRate}
-                onChange={(e) => setInterestRate(e.target.value)}
-              />
-            </div>
+            {!isOutright && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="down">Số tiền trả trước (VNĐ)</Label>
+                  <Input
+                    id="down"
+                    inputMode="numeric"
+                    value={downPayment}
+                    onChange={(e) => setDownPayment(e.target.value.replace(/\D/g, ""))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="months">Số tháng trả góp</Label>
+                  <Input
+                    id="months"
+                    inputMode="numeric"
+                    value={months}
+                    onChange={(e) => setMonths(e.target.value.replace(/\D/g, ""))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="rate">Lãi suất/tháng (%)</Label>
+                  <Input
+                    id="rate"
+                    inputMode="decimal"
+                    value={interestRate}
+                    onChange={(e) => setInterestRate(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
             <div className="space-y-2">
               <Label htmlFor="start">Ngày bắt đầu</Label>
               <Input
@@ -197,10 +227,12 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
                 onChange={(e) => setStartDate(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <Label>Ngày kết thúc (tự tính)</Label>
-              <Input value={endDate} readOnly disabled />
-            </div>
+            {!isOutright && (
+              <div className="space-y-2">
+                <Label>Ngày kết thúc (tự tính)</Label>
+                <Input value={endDate} readOnly disabled />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -209,14 +241,23 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
           </div>
 
           <div className="rounded-lg border border-border bg-muted p-4 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Số tiền phải đóng mỗi tháng</span>
-              <strong className="num">{formatMoney(perMonth)}</strong>
-            </div>
-            <div className="mt-1 flex justify-between">
-              <span className="text-muted-foreground">Còn nợ sau khi trả trước</span>
-              <span className="num">{formatMoney(Math.max(total - down, 0))}</span>
-            </div>
+            {isOutright ? (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Khách trả thẳng 100%</span>
+                <strong className="num">{formatMoney(total)}</strong>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Số tiền phải đóng mỗi tháng</span>
+                  <strong className="num">{formatMoney(perMonth)}</strong>
+                </div>
+                <div className="mt-1 flex justify-between">
+                  <span className="text-muted-foreground">Còn nợ sau khi trả trước</span>
+                  <span className="num">{formatMoney(Math.max(total - down, 0))}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

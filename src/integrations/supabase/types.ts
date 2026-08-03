@@ -28,6 +28,7 @@ export type Database = {
           monthly_payment: number | null
           months: number
           note: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"]
           start_date: string
           status: Database["public"]["Enums"]["contract_status"]
           total_value: number
@@ -46,6 +47,7 @@ export type Database = {
           monthly_payment?: number | null
           months: number
           note?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
           start_date?: string
           status?: Database["public"]["Enums"]["contract_status"]
           total_value: number
@@ -64,6 +66,7 @@ export type Database = {
           monthly_payment?: number | null
           months?: number
           note?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
           start_date?: string
           status?: Database["public"]["Enums"]["contract_status"]
           total_value?: number
@@ -96,6 +99,7 @@ export type Database = {
           id: string
           name: string
           note: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"]
           phone: string | null
           updated_at: string
           user_id: string | null
@@ -109,6 +113,7 @@ export type Database = {
           id?: string
           name: string
           note?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
           phone?: string | null
           updated_at?: string
           user_id?: string | null
@@ -122,6 +127,7 @@ export type Database = {
           id?: string
           name?: string
           note?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
           phone?: string | null
           updated_at?: string
           user_id?: string | null
@@ -286,6 +292,9 @@ export type Database = {
           created_at: string | null
           customer_id: string | null
           customer_name: string | null
+          customer_payment_type:
+            | Database["public"]["Enums"]["payment_type"]
+            | null
           customer_phone: string | null
           down_payment: number | null
           end_date: string | null
@@ -298,6 +307,7 @@ export type Database = {
           monthly_payment: number | null
           months: number | null
           note: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"] | null
           payments_count: number | null
           payments_total: number | null
           remaining: number | null
@@ -339,6 +349,7 @@ export type Database = {
       app_role: "admin" | "staff" | "customer"
       contract_status: "dang_tra_gop" | "da_hoan_thanh" | "qua_han"
       payment_method: "tien_mat" | "chuyen_khoan"
+      payment_type: "tra_gop" | "tra_thang"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -469,6 +480,7 @@ export const Constants = {
       app_role: ["admin", "staff", "customer"],
       contract_status: ["dang_tra_gop", "da_hoan_thanh", "qua_han"],
       payment_method: ["tien_mat", "chuyen_khoan"],
+      payment_type: ["tra_gop", "tra_thang"],
     },
   },
 } as const

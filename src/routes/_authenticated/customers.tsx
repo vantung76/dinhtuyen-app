@@ -6,10 +6,10 @@ import { AtSign, MailCheck, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { formatDate, makeCode } from "@/lib/format";
+import { formatDate, makeCode, PAYMENT_TYPE_LABEL } from "@/lib/format";
 import { sendCustomerActivation } from "@/lib/email.functions";
 import { changeCustomerEmail } from "@/lib/customer.functions";
-import type { Customer } from "@/lib/types";
+import type { Customer, PaymentType } from "@/lib/types";
 
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -60,7 +69,15 @@ function CustomersPage() {
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
+  const [tab, setTab] = useState<"all" | PaymentType>("all");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    note: "",
+    payment_type: "tra_gop" as PaymentType,
+  });
   const [emailTarget, setEmailTarget] = useState<Customer | null>(null);
   const [newEmail, setNewEmail] = useState("");
 
@@ -87,13 +104,21 @@ function CustomersPage() {
         email: form.email || null,
         address: form.address || null,
         note: form.note || null,
+        payment_type: form.payment_type,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Đã thêm khách hàng");
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
-      setForm({ name: "", phone: "", email: "", address: "", note: "" });
+      setForm({
+        name: "",
+        phone: "",
+        email: "",
+        address: "",
+        note: "",
+        payment_type: "tra_gop",
+      });
       setOpen(false);
     },
     onError: (e: Error) => toast.error("Không lưu được", { description: e.message }),
@@ -136,21 +161,34 @@ function CustomersPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return customers;
-    return customers.filter(
-      (c) =>
+    return customers.filter((c) => {
+      const matchTab = tab === "all" || (c.payment_type ?? "tra_gop") === tab;
+      const matchSearch =
+        !q ||
         c.name.toLowerCase().includes(q) ||
         c.code.toLowerCase().includes(q) ||
-        (c.phone ?? "").includes(q),
-    );
-  }, [customers, search]);
+        (c.phone ?? "").includes(q);
+      return matchTab && matchSearch;
+    });
+  }, [customers, search, tab]);
+
+  const counts = useMemo(
+    () => ({
+      installment: customers.filter((c) => (c.payment_type ?? "tra_gop") === "tra_gop").length,
+      outright: customers.filter((c) => c.payment_type === "tra_thang").length,
+    }),
+    [customers],
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Khách hàng</h1>
-          <p className="text-sm text-muted-foreground">{customers.length} khách hàng</p>
+          <p className="text-sm text-muted-foreground">
+            {customers.length} khách hàng · {counts.installment} trả góp · {counts.outright} trả
+            thẳng
+          </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -192,6 +230,21 @@ function CustomersPage() {
                 </div>
               </div>
               <div className="space-y-2">
+                <Label>Hình thức thanh toán</Label>
+                <Select
+                  value={form.payment_type}
+                  onValueChange={(v) => setForm({ ...form, payment_type: v as PaymentType })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn hình thức" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tra_gop">Trả góp</SelectItem>
+                    <SelectItem value="tra_thang">Trả thẳng (100%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="address">Địa chỉ</Label>
                 <Input
                   id="address"
@@ -221,6 +274,16 @@ function CustomersPage() {
         </Dialog>
       </div>
 
+      <div className="flex flex-wrap items-center gap-3">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
+          <TabsList>
+            <TabsTrigger value="all">Tất cả khách hàng</TabsTrigger>
+            <TabsTrigger value="tra_gop">Khách hàng Trả góp</TabsTrigger>
+            <TabsTrigger value="tra_thang">Khách hàng Trả thẳng</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -237,6 +300,7 @@ function CustomersPage() {
             <TableRow>
               <TableHead>Mã KH</TableHead>
               <TableHead>Tên</TableHead>
+              <TableHead>Hình thức</TableHead>
               <TableHead>Điện thoại</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Địa chỉ</TableHead>
@@ -247,13 +311,13 @@ function CustomersPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                   Đang tải…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                   Chưa có khách hàng nào.
                 </TableCell>
               </TableRow>
@@ -262,6 +326,18 @@ function CustomersPage() {
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.code}</TableCell>
                   <TableCell>{c.name}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        c.payment_type === "tra_thang"
+                          ? "border-success/30 bg-success/10 text-success"
+                          : "border-primary/25 bg-primary/10 text-primary"
+                      }
+                    >
+                      {PAYMENT_TYPE_LABEL[c.payment_type ?? "tra_gop"]}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{c.phone ?? "—"}</TableCell>
                   <TableCell>{c.email ?? "—"}</TableCell>
                   <TableCell className="max-w-64 truncate text-sm">{c.address ?? "—"}</TableCell>

@@ -78,6 +78,19 @@ function DashboardPage() {
   const [tab, setTab] = useState<"all" | ContractStatus>("all");
   const { alerts: warrantyAlerts, isLoading: warrantyLoading } = useWarrantyAlerts();
 
+  const { data: customerGroups = { installment: 0, outright: 0 } } = useQuery({
+    queryKey: ["customer-groups"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("customers").select("payment_type");
+      if (error) throw error;
+      const rows = (data ?? []) as { payment_type: string | null }[];
+      return {
+        installment: rows.filter((r) => (r.payment_type ?? "tra_gop") === "tra_gop").length,
+        outright: rows.filter((r) => r.payment_type === "tra_thang").length,
+      };
+    },
+  });
+
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["contracts"],
     queryFn: async () => {
@@ -164,6 +177,21 @@ function DashboardPage() {
         <p className="mt-1 text-xs text-muted-foreground">
           Còn ≤ 30 ngày hoặc ≤ 5.000 bản chụp — cần liên hệ gia hạn bảo trì.
         </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="stat-card">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Tổng khách trả góp
+          </p>
+          <p className="num mt-2 text-2xl font-bold text-primary">{customerGroups.installment}</p>
+        </div>
+        <div className="stat-card">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Tổng khách trả thẳng
+          </p>
+          <p className="num mt-2 text-2xl font-bold text-success">{customerGroups.outright}</p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
