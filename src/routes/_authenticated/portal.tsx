@@ -9,6 +9,7 @@ import {
   addMonths,
   formatDate,
   formatMoney,
+  formatNumber,
 } from "@/lib/format";
 import type { ContractSummary, Machine, Payment } from "@/lib/types";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
