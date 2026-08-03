@@ -3,7 +3,7 @@ type AuthLinkProperties = {
   verification_type?: string;
 };
 
-const DEFAULT_PUBLIC_SITE_URL = "https://app.dinhtuyen.com";
+const DEFAULT_PUBLIC_SITE_URL = "https://photocopytragop.shop";
 
 export function getPublicSiteUrl(): string {
   return (process.env["PUBLIC_SITE_URL"]?.trim() || DEFAULT_PUBLIC_SITE_URL).replace(/\/$/, "");
