@@ -198,7 +198,68 @@ function MachinesPage() {
                   {formatMoney(Number(form.price) || 0)}
                 </p>
               </div>
+              <div className="rounded-lg border border-border p-4">
+                <p className="mb-3 text-sm font-semibold">Thông tin bảo hành</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="wstart">Ngày bàn giao / kích hoạt</Label>
+                    <Input
+                      id="wstart"
+                      type="date"
+                      value={form.warranty_start_date}
+                      onChange={(e) => setForm({ ...form, warranty_start_date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wmonths">Thời hạn bảo hành (tháng)</Label>
+                    <Input
+                      id="wmonths"
+                      inputMode="numeric"
+                      placeholder="24"
+                      value={form.warranty_months}
+                      onChange={(e) =>
+                        setForm({ ...form, warranty_months: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wcopies">Số bản chụp bảo hành</Label>
+                    <Input
+                      id="wcopies"
+                      inputMode="numeric"
+                      placeholder="60000"
+                      value={form.warranty_copies}
+                      onChange={(e) =>
+                        setForm({ ...form, warranty_copies: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cstart">Counter khi bàn giao</Label>
+                    <Input
+                      id="cstart"
+                      inputMode="numeric"
+                      value={form.counter_start}
+                      onChange={(e) =>
+                        setForm({ ...form, counter_start: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="ccur">Counter hiện tại</Label>
+                    <Input
+                      id="ccur"
+                      inputMode="numeric"
+                      value={form.counter_current}
+                      onChange={(e) =>
+                        setForm({ ...form, counter_current: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="space-y-2">
+
                 <Label htmlFor="mnote">Ghi chú</Label>
                 <Textarea
                   id="mnote"
