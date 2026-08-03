@@ -2,12 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Printer } from "lucide-react";
+import { Printer, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -215,11 +216,12 @@ function AuthPage() {
                   <PasswordInput
                     id="password2"
                     required
-                    minLength={6}
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
                   />
+                  <PasswordRequirements password={password} />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   Tạo tài khoản
@@ -244,5 +246,36 @@ function AuthPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+function PasswordRequirements({ password }: { password: string }) {
+  const checks = [
+    { label: "Nhập ít nhất 8 ký tự", met: password.length >= 8 },
+    { label: "Chữ thường", met: /[a-z]/.test(password) },
+    { label: "Chữ in hoa", met: /[A-Z]/.test(password) },
+    { label: "Chữ số", met: /\d/.test(password) },
+    { label: "Ký tự đặc biệt", met: /[^A-Za-z0-9]/.test(password) },
+  ];
+
+  return (
+    <ul className="mt-2 grid grid-cols-1 gap-1">
+      {checks.map((check) => (
+        <li
+          key={check.label}
+          className={cn(
+            "flex items-center gap-2 text-xs",
+            check.met ? "text-green-600" : "text-muted-foreground",
+          )}
+        >
+          {check.met ? (
+            <Check className="size-3" aria-hidden />
+          ) : (
+            <X className="size-3" aria-hidden />
+          )}
+          {check.label}
+        </li>
+      ))}
+    </ul>
   );
 }
