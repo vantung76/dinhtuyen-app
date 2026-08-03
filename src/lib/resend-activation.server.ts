@@ -1,4 +1,5 @@
 import { activationEmail, sendResendEmail } from "./email.server";
+import { createAppAuthLink } from "./auth-link.server";
 
 export async function resendActivation(input: { email: string; siteUrl?: string }) {
   const email = input.email.trim().toLowerCase();
@@ -15,7 +16,7 @@ export async function resendActivation(input: { email: string; siteUrl?: string 
     ...(redirectTo ? { options: { redirectTo } } : {}),
   });
 
-  const actionLink = magic.data?.properties?.action_link;
+  const actionLink = createAppAuthLink(base, magic.data?.properties, "/auth");
   // Không tiết lộ email có tồn tại hay không.
   if (magic.error || !actionLink) return { sent: true };
 

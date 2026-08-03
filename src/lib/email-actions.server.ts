@@ -8,6 +8,7 @@ import {
   staffInvitationEmail,
   welcomeEmail,
 } from "./email.server";
+import { createAppAuthLink } from "./auth-link.server";
 
 
 type Client = SupabaseClient<Database>;
@@ -150,7 +151,7 @@ export async function sendCustomerActivation(
     },
   });
 
-  let actionLink = invite.data?.properties?.action_link;
+  let actionLink = createAppAuthLink(siteUrl, invite.data?.properties, "/reset-password");
   if (!actionLink) {
     const magic = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
@@ -158,7 +159,7 @@ export async function sendCustomerActivation(
       ...(redirectTo ? { options: { redirectTo } } : {}),
     });
     if (magic.error) throw new Error(magic.error.message);
-    actionLink = magic.data?.properties?.action_link;
+    actionLink = createAppAuthLink(siteUrl, magic.data?.properties, "/reset-password");
   }
   if (!actionLink) throw new Error("Không tạo được liên kết kích hoạt");
 
@@ -197,7 +198,7 @@ export async function sendStaffInvite(
     },
   });
 
-  let actionLink = invite.data?.properties?.action_link;
+  let actionLink = createAppAuthLink(siteUrl, invite.data?.properties, "/reset-password");
   let invitedUserId = invite.data?.user?.id;
 
   if (!actionLink) {
@@ -207,7 +208,7 @@ export async function sendStaffInvite(
       ...(redirectTo ? { options: { redirectTo } } : {}),
     });
     if (magic.error) throw new Error(magic.error.message);
-    actionLink = magic.data?.properties?.action_link;
+    actionLink = createAppAuthLink(siteUrl, magic.data?.properties, "/reset-password");
     invitedUserId = magic.data?.user?.id ?? invitedUserId;
   }
   if (!actionLink) throw new Error("Không tạo được liên kết kích hoạt");
