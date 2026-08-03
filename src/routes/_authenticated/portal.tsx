@@ -51,6 +51,11 @@ function CustomerPortal() {
     queryKey: ["portal-contracts", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
+      // Tự gắn hồ sơ khách hàng có cùng email với tài khoản đang đăng nhập
+      await (supabase.rpc as unknown as (fn: string) => Promise<unknown>)(
+        "claim_my_customer_records",
+      ).catch(() => undefined);
+
       const { data, error } = await supabase
         .from("contract_summaries")
         .select("*")
