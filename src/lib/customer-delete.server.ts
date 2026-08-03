@@ -12,9 +12,9 @@ async function findAuthUserIdByEmail(
 ): Promise<string | null> {
   const target = email.trim().toLowerCase();
   if (!target) return null;
-  for (let page = 1; page <= 10; page++) {
+  for (let page = 1; ; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
-    if (error) return null;
+    if (error) throw new Error(`Không kiểm tra được tài khoản đăng nhập: ${error.message}`);
     const users: { id: string; email?: string | null }[] = data?.users ?? [];
     const hit = users.find((u) => (u.email ?? "").toLowerCase() === target);
     if (hit) return hit.id;
@@ -51,6 +51,11 @@ export async function deleteCustomer(
     let authId = customer.user_id as string | null;
     if (!authId && customer.email) {
       authId = await findAuthUserIdByEmail(supabaseAdmin as never, customer.email);
+    }
+    if (!authId) {
+      throw new Error(
+        "Không tìm thấy tài khoản đăng nhập tương ứng. Hồ sơ khách hàng chưa bị xoá để tránh bỏ sót tài khoản.",
+      );
     }
     if (authId && authId !== userId) {
       const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(authId);
