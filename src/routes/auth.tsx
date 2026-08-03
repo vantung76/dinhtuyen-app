@@ -163,10 +163,22 @@ function AuthPage() {
         </div>
 
         {sentConfirm ? (
-          <p className="mt-8 rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
-            Chúng tôi đã gửi email xác nhận tới <strong>{email}</strong>. Vui lòng mở email và bấm
-            liên kết xác nhận, sau đó quay lại đăng nhập.
-          </p>
+          <div className="mt-8 space-y-3 rounded-lg border border-border bg-muted p-4">
+            <p className="text-sm text-muted-foreground">
+              Chúng tôi đã gửi email xác nhận tới <strong>{email}</strong>. Vui lòng mở email và bấm
+              liên kết xác nhận, sau đó quay lại đăng nhập.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleResendActivation}
+              disabled={resending}
+            >
+              {resending ? "Đang gửi lại..." : "Gửi lại email kích hoạt"}
+            </Button>
+          </div>
+
         ) : (
           <Tabs defaultValue="signin" className="mt-6">
             <TabsList className="grid w-full grid-cols-2">
@@ -250,6 +262,19 @@ function AuthPage() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   Tạo tài khoản
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleResendActivation}
+                  disabled={resending}
+                >
+                  {resending ? "Đang gửi lại..." : "Gửi lại email kích hoạt"}
+                </Button>
+                <p className="text-center text-xs text-muted-foreground">
+                  Không nhận được thư kích hoạt? Nhập email ở trên rồi bấm “Gửi lại”.
+                </p>
+
               </form>
             </TabsContent>
           </Tabs>
