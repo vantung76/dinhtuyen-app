@@ -9,7 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatDate, makeCode, PAYMENT_TYPE_LABEL } from "@/lib/format";
 import { sendCustomerActivation } from "@/lib/email.functions";
 import { changeCustomerEmail } from "@/lib/customer.functions";
+import { removeCustomer } from "@/lib/customer-delete.functions";
 import type { Customer, PaymentType } from "@/lib/types";
+
 
 
 import { Button } from "@/components/ui/button";
@@ -66,6 +68,8 @@ function CustomersPage() {
   const queryClient = useQueryClient();
   const sendActivation = useServerFn(sendCustomerActivation);
   const changeEmail = useServerFn(changeCustomerEmail);
+  const deleteCustomerFn = useServerFn(removeCustomer);
+
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -80,6 +84,9 @@ function CustomersPage() {
   });
   const [emailTarget, setEmailTarget] = useState<Customer | null>(null);
   const [newEmail, setNewEmail] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [deleteAccount, setDeleteAccount] = useState(true);
+
 
 
   const { data: customers = [], isLoading } = useQuery({
@@ -147,16 +154,16 @@ function CustomersPage() {
 
 
   const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("customers").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Đã xoá khách hàng");
+    mutationFn: async (vars: { id: string; deleteAccount: boolean }) =>
+      deleteCustomerFn({ data: { customerId: vars.id, deleteAccount: vars.deleteAccount } }),
+    onSuccess: (r) => {
+      toast.success(r.message);
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
+      setDeleteTarget(null);
     },
     onError: (e: Error) => toast.error("Không xoá được", { description: e.message }),
   });
+
 
 
   const filtered = useMemo(() => {
