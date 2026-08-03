@@ -215,6 +215,9 @@ function ContractDetail() {
         )}
       </div>
 
+      {machine && <WarrantyPanel machine={machine} />}
+
+
       <div>
         <h2 className="mb-3 text-lg font-semibold">Lịch sử thanh toán</h2>
         <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
