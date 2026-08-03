@@ -231,8 +231,10 @@ function CustomerPortal() {
         <h2 className="text-lg font-semibold">Hợp đồng của bạn</h2>
         {contracts.map((c) => {
           const due = nextDueDate(c);
+          const machine = machines.find((m) => m.id === c.machine_id);
           return (
-            <article key={c.id} className="stat-card space-y-3">
+            <div key={c.id} className="space-y-3">
+            <article className="stat-card space-y-3">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{c.machine_name}</p>
@@ -273,6 +275,8 @@ function CustomerPortal() {
                 </div>
               </dl>
             </article>
+            {machine && <WarrantyPanel machine={machine} />}
+            </div>
           );
         })}
       </section>
