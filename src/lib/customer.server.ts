@@ -69,8 +69,8 @@ export async function changeCustomerEmail(
     if (unlinkErr) throw new Error(unlinkErr.message);
   }
 
-  const siteUrl = process.env["PUBLIC_SITE_URL"] ?? "";
-  const redirectTo = siteUrl ? `${siteUrl}/portal` : undefined;
+  const siteUrl = getPublicSiteUrl();
+  const redirectTo = siteUrl ? `${siteUrl}/reset-password` : undefined;
 
   const invite = await supabaseAdmin.auth.admin.generateLink({
     type: "invite",
@@ -81,7 +81,7 @@ export async function changeCustomerEmail(
     },
   });
 
-  let actionLink = invite.data?.properties?.action_link;
+  let actionLink = createAppAuthLink(siteUrl, invite.data?.properties, "/reset-password");
   if (!actionLink) {
     const magic = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
@@ -89,7 +89,7 @@ export async function changeCustomerEmail(
       ...(redirectTo ? { options: { redirectTo } } : {}),
     });
     if (magic.error) throw new Error(magic.error.message);
-    actionLink = magic.data?.properties?.action_link;
+    actionLink = createAppAuthLink(siteUrl, magic.data?.properties, "/reset-password");
   }
   if (!actionLink) throw new Error("Đã đổi email nhưng chưa tạo được liên kết kích hoạt");
 
