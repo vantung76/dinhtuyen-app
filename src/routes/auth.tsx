@@ -216,11 +216,12 @@ function AuthPage() {
                   <PasswordInput
                     id="password2"
                     required
-                    minLength={6}
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
                   />
+                  <PasswordRequirements password={password} />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   Tạo tài khoản
