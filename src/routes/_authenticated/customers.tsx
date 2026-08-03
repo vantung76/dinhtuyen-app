@@ -9,7 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatDate, makeCode, PAYMENT_TYPE_LABEL } from "@/lib/format";
 import { sendCustomerActivation } from "@/lib/email.functions";
 import { changeCustomerEmail } from "@/lib/customer.functions";
+import { removeCustomer } from "@/lib/customer-delete.functions";
 import type { Customer, PaymentType } from "@/lib/types";
+
 
 
 import { Button } from "@/components/ui/button";
@@ -66,6 +68,8 @@ function CustomersPage() {
   const queryClient = useQueryClient();
   const sendActivation = useServerFn(sendCustomerActivation);
   const changeEmail = useServerFn(changeCustomerEmail);
+  const deleteCustomerFn = useServerFn(removeCustomer);
+
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -80,6 +84,9 @@ function CustomersPage() {
   });
   const [emailTarget, setEmailTarget] = useState<Customer | null>(null);
   const [newEmail, setNewEmail] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [deleteAccount, setDeleteAccount] = useState(true);
+
 
 
   const { data: customers = [], isLoading } = useQuery({
@@ -147,16 +154,16 @@ function CustomersPage() {
 
 
   const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("customers").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Đã xoá khách hàng");
+    mutationFn: async (vars: { id: string; deleteAccount: boolean }) =>
+      deleteCustomerFn({ data: { customerId: vars.id, deleteAccount: vars.deleteAccount } }),
+    onSuccess: (r) => {
+      toast.success(r.message);
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
+      setDeleteTarget(null);
     },
     onError: (e: Error) => toast.error("Không xoá được", { description: e.message }),
   });
+
 
 
   const filtered = useMemo(() => {
@@ -370,7 +377,11 @@ function CustomersPage() {
                         size="icon"
                         variant="ghost"
                         aria-label="Xoá khách hàng"
-                        onClick={() => remove.mutate(c.id)}
+                        onClick={() => {
+                          setDeleteTarget(c);
+                          setDeleteAccount(true);
+                        }}
+
                       >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
@@ -445,7 +456,55 @@ function CustomersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => {
+          if (!v) setDeleteTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Xoá khách hàng</DialogTitle>
+            <DialogDescription>
+              Xoá hồ sơ khách hàng khỏi hệ thống. Nếu không xoá cả tài khoản đăng nhập, khách vẫn có
+              thể đăng nhập vào cổng thông tin và thấy màn hình trống.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+              <div className="font-medium">{deleteTarget?.name}</div>
+              <div className="text-muted-foreground">Email: {deleteTarget?.email ?? "chưa có"}</div>
+            </div>
+            <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+              <input
+                type="checkbox"
+                className="mt-1 size-4 accent-[hsl(var(--primary))]"
+                checked={deleteAccount}
+                onChange={(e) => setDeleteAccount(e.target.checked)}
+              />
+              <span>
+                <strong>Xoá luôn tài khoản đăng nhập</strong> của khách (khuyến nghị) — khách sẽ
+                không đăng nhập được nữa.
+              </span>
+            </label>
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Huỷ
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={() => remove.mutate({ id: deleteTarget!.id, deleteAccount })}
+            >
+              Xoá khách hàng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
 
