@@ -377,7 +377,11 @@ function CustomersPage() {
                         size="icon"
                         variant="ghost"
                         aria-label="Xoá khách hàng"
-                        onClick={() => remove.mutate(c.id)}
+                        onClick={() => {
+                          setDeleteTarget(c);
+                          setDeleteAccount(true);
+                        }}
+
                       >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
