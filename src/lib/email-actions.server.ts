@@ -8,7 +8,7 @@ import {
   staffInvitationEmail,
   welcomeEmail,
 } from "./email.server";
-import { createAppAuthLink } from "./auth-link.server";
+import { createAppAuthLink, getPublicSiteUrl } from "./auth-link.server";
 
 
 type Client = SupabaseClient<Database>;
@@ -139,7 +139,7 @@ export async function sendCustomerActivation(
   if (!customer?.email) throw new Error("Khách hàng chưa có địa chỉ email");
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const siteUrl = (input.siteUrl?.trim() || process.env["PUBLIC_SITE_URL"] || "").replace(/\/$/, "");
+  const siteUrl = getPublicSiteUrl();
   const redirectTo = siteUrl ? `${siteUrl}/reset-password` : undefined;
 
   const invite = await supabaseAdmin.auth.admin.generateLink({
@@ -186,7 +186,7 @@ export async function sendStaffInvite(
   const fullName = input.fullName?.trim() || email.split("@")[0]!;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const siteUrl = (input.siteUrl?.trim() || process.env["PUBLIC_SITE_URL"] || "").replace(/\/$/, "");
+  const siteUrl = getPublicSiteUrl();
   const redirectTo = siteUrl ? `${siteUrl}/reset-password` : undefined;
 
   const invite = await supabaseAdmin.auth.admin.generateLink({
@@ -248,7 +248,7 @@ export async function sendWelcomeEmail(
     .maybeSingle();
 
   const fullName = input.fullName?.trim() || profile?.full_name || email.split("@")[0]!;
-  const base = input.siteUrl?.trim() || process.env["PUBLIC_SITE_URL"] || "";
+  const base = getPublicSiteUrl();
   const loginUrl = base ? `${base.replace(/\/$/, "")}/auth` : "https://dinhtuyen.com";
 
   const { subject, html } = welcomeEmail({ fullName, roleLabel, loginUrl });
