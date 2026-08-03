@@ -164,7 +164,9 @@ function CustomerPortal() {
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Counter hiện tại</dt>
-                      <dd className="num font-medium">{machine?.counter_current ?? "—"}</dd>
+                      <dd className="num font-medium">
+                        {machine ? formatNumber(machine.counter_current) : "—"}
+                      </dd>
                     </div>
                   </dl>
                 </article>
