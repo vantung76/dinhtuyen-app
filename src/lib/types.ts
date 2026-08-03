@@ -1,4 +1,5 @@
 export type ContractStatus = "dang_tra_gop" | "da_hoan_thanh" | "qua_han";
+export type PaymentType = "tra_gop" | "tra_thang";
 export type PaymentMethod = "tien_mat" | "chuyen_khoan";
 
 export type Customer = {
@@ -9,6 +10,7 @@ export type Customer = {
   email: string | null;
   address: string | null;
   note: string | null;
+  payment_type: PaymentType;
   created_at: string;
 };
 
@@ -54,6 +56,8 @@ export type ContractSummary = {
   remaining: number;
   payments_count: number;
   last_payment_date: string | null;
+  payment_type: PaymentType;
+  customer_payment_type: PaymentType;
 };
 
 export type Payment = {
