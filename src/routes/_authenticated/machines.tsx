@@ -56,6 +56,8 @@ function MachinesPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<Machine | null>(null);
+
   const [form, setForm] = useState({
     name: "",
     brand: "",
