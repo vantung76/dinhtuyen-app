@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
+import { resendActivationEmail } from "@/lib/resend-activation.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +47,29 @@ function AuthPage() {
   const sendWelcome = useServerFn(sendWelcomeEmail);
   const sendReset = useServerFn(requestPasswordReset);
   const [sentReset, setSentReset] = useState(false);
+  const resendActivation = useServerFn(resendActivationEmail);
+  const [resending, setResending] = useState(false);
+
+  async function handleResendActivation() {
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email trước khi gửi lại thư kích hoạt");
+      return;
+    }
+    setResending(true);
+    try {
+      await resendActivation({ data: { email, siteUrl: window.location.origin } });
+      toast.success("Đã gửi lại email kích hoạt", {
+        description: "Vui lòng kiểm tra hộp thư (kể cả mục Quảng cáo/Spam).",
+      });
+    } catch (err) {
+      toast.error("Không gửi lại được email kích hoạt", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setResending(false);
+    }
+  }
+
 
   async function handleForgotPassword() {
     if (!email.trim()) {
