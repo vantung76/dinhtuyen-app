@@ -76,7 +76,7 @@ function StaffPage() {
   const [inviteForm, setInviteForm] = useState({ email: "", fullName: "", role: "staff" as "staff" | "admin" });
 
   const sendInvite = useMutation({
-    mutationFn: async () => invite({ data: inviteForm }),
+    mutationFn: async () => invite({ data: { ...inviteForm, siteUrl: window.location.origin } }),
     onSuccess: (r) => {
       toast.success(`Đã gửi thư kích hoạt tới ${r.to}`);
       setInviteForm({ email: "", fullName: "", role: "staff" });

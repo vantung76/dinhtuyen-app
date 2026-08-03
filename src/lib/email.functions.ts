@@ -36,7 +36,7 @@ export const sendCustomerActivation = createServerFn({ method: "POST" })
 
 export const sendStaffInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { email: string; fullName?: string; role?: "admin" | "staff" }) => {
+  .inputValidator((data: { email: string; fullName?: string; role?: "admin" | "staff"; siteUrl?: string }) => {
     if (!data?.email) throw new Error("Thiếu địa chỉ email");
     return data;
   })
