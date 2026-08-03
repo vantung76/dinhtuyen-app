@@ -132,7 +132,7 @@ function CustomersPage() {
   });
 
   const activate = useMutation({
-    mutationFn: async (id: string) => sendActivation({ data: { customerId: id } }),
+    mutationFn: async (id: string) => sendActivation({ data: { customerId: id , siteUrl: window.location.origin } }),
     onSuccess: (r) => toast.success(`Đã gửi email kích hoạt tới ${r.to}`),
     onError: (e: Error) => toast.error("Không gửi được email", { description: e.message }),
   });
@@ -140,7 +140,7 @@ function CustomersPage() {
   const updateEmail = useMutation({
     mutationFn: async (keepAccount: boolean) =>
       changeEmail({
-        data: { customerId: emailTarget!.id, newEmail: newEmail.trim(), keepAccount },
+        data: { customerId: emailTarget!.id, newEmail: newEmail.trim(), keepAccount , siteUrl: window.location.origin },
       }),
     onSuccess: (r) => {
       toast.success(r.message);
@@ -155,7 +155,7 @@ function CustomersPage() {
 
   const remove = useMutation({
     mutationFn: async (vars: { id: string; deleteAccount: boolean }) =>
-      deleteCustomerFn({ data: { customerId: vars.id, deleteAccount: vars.deleteAccount } }),
+      deleteCustomerFn({ data: { customerId: vars.id, deleteAccount: vars.deleteAccount , siteUrl: window.location.origin } }),
     onSuccess: (r) => {
       toast.success(r.message);
       void queryClient.invalidateQueries({ queryKey: ["customers"] });

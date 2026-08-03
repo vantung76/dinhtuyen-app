@@ -25,7 +25,7 @@ export const sendPaymentReminder = createServerFn({ method: "POST" })
 
 export const sendCustomerActivation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { customerId: string }) => {
+  .inputValidator((data: { customerId: string; siteUrl?: string }) => {
     if (!data?.customerId) throw new Error("Thiếu mã khách hàng");
     return data;
   })
