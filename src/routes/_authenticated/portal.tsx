@@ -46,22 +46,27 @@ function nextDueDate(c: ContractSummary): string | null {
 
 function CustomerPortal() {
   const { user, fullName } = useAuth();
-  console.log("PORTAL_DEBUG", { uid: user?.id ?? null });
 
-  const { data: contracts = [], isLoading } = useQuery({
+  const {
+    data: contracts = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["portal-contracts", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
       // Tự gắn hồ sơ khách hàng có cùng email với tài khoản đang đăng nhập
-      await (supabase.rpc as unknown as (fn: string) => Promise<unknown>)(
-        "claim_my_customer_records",
-      ).catch(() => undefined);
+      try {
+        await supabase.rpc("claim_my_customer_records" as never);
+      } catch {
+        /* bỏ qua nếu không gắn được */
+      }
 
-      const { data, error } = await supabase
+      const { data, error: err } = await supabase
         .from("contract_summaries")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
+      if (err) throw err;
       return (data ?? []) as unknown as ContractSummary[];
     },
   });
