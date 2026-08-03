@@ -335,6 +335,7 @@ export type Database = {
       }
     }
     Functions: {
+      claim_my_customer_records: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
