@@ -5,7 +5,7 @@ import { CircleAlert, LoaderCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/auth/confirm")({
+export const Route = createFileRoute("/activate-account")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>) => ({
     token_hash: typeof search["token_hash"] === "string" ? search["token_hash"] : "",

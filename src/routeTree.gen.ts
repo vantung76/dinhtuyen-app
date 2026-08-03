@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as ActivateAccountRouteImport } from './routes/activate-account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
@@ -19,7 +20,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMachinesRouteImport } from './routes/_authenticated/machines'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
-import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as AuthenticatedContractsContractIdRouteImport } from './routes/_authenticated/contracts.$contractId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActivateAccountRoute = ActivateAccountRouteImport.update({
+  id: '/activate-account',
+  path: '/activate-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -71,11 +76,6 @@ const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
   path: '/staff',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthConfirmRoute = AuthConfirmRouteImport.update({
-  id: '/confirm',
-  path: '/confirm',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthenticatedContractsContractIdRoute =
   AuthenticatedContractsContractIdRouteImport.update({
     id: '/contracts/$contractId',
@@ -85,7 +85,8 @@ const AuthenticatedContractsContractIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/activate-account': typeof ActivateAccountRoute
+  '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/access': typeof AuthenticatedAccessRoute
   '/customers': typeof AuthenticatedCustomersRoute
@@ -93,12 +94,12 @@ export interface FileRoutesByFullPath {
   '/machines': typeof AuthenticatedMachinesRoute
   '/portal': typeof AuthenticatedPortalRoute
   '/staff': typeof AuthenticatedStaffRoute
-  '/auth/confirm': typeof AuthConfirmRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/activate-account': typeof ActivateAccountRoute
+  '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/access': typeof AuthenticatedAccessRoute
   '/customers': typeof AuthenticatedCustomersRoute
@@ -106,14 +107,14 @@ export interface FileRoutesByTo {
   '/machines': typeof AuthenticatedMachinesRoute
   '/portal': typeof AuthenticatedPortalRoute
   '/staff': typeof AuthenticatedStaffRoute
-  '/auth/confirm': typeof AuthConfirmRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRouteWithChildren
+  '/activate-account': typeof ActivateAccountRoute
+  '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/access': typeof AuthenticatedAccessRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
@@ -121,13 +122,13 @@ export interface FileRoutesById {
   '/_authenticated/machines': typeof AuthenticatedMachinesRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
-  '/auth/confirm': typeof AuthConfirmRoute
   '/_authenticated/contracts/$contractId': typeof AuthenticatedContractsContractIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/activate-account'
     | '/auth'
     | '/reset-password'
     | '/access'
@@ -136,11 +137,11 @@ export interface FileRouteTypes {
     | '/machines'
     | '/portal'
     | '/staff'
-    | '/auth/confirm'
     | '/contracts/$contractId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/activate-account'
     | '/auth'
     | '/reset-password'
     | '/access'
@@ -149,12 +150,12 @@ export interface FileRouteTypes {
     | '/machines'
     | '/portal'
     | '/staff'
-    | '/auth/confirm'
     | '/contracts/$contractId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/activate-account'
     | '/auth'
     | '/reset-password'
     | '/_authenticated/access'
@@ -163,14 +164,14 @@ export interface FileRouteTypes {
     | '/_authenticated/machines'
     | '/_authenticated/portal'
     | '/_authenticated/staff'
-    | '/auth/confirm'
     | '/_authenticated/contracts/$contractId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRouteWithChildren
+  ActivateAccountRoute: typeof ActivateAccountRoute
+  AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
@@ -188,6 +189,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activate-account': {
+      id: '/activate-account'
+      path: '/activate-account'
+      fullPath: '/activate-account'
+      preLoaderRoute: typeof ActivateAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -246,13 +254,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/auth/confirm': {
-      id: '/auth/confirm'
-      path: '/confirm'
-      fullPath: '/auth/confirm'
-      preLoaderRoute: typeof AuthConfirmRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_authenticated/contracts/$contractId': {
       id: '/_authenticated/contracts/$contractId'
       path: '/contracts/$contractId'
@@ -286,20 +287,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AuthRouteChildren {
-  AuthConfirmRoute: typeof AuthConfirmRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthConfirmRoute: AuthConfirmRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRouteWithChildren,
+  ActivateAccountRoute: ActivateAccountRoute,
+  AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
