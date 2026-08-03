@@ -292,7 +292,7 @@ function MachinesPage() {
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
-        <Table className="min-w-[720px]">
+        <Table className="min-w-[880px]">
           <TableHeader>
             <TableRow>
               <TableHead>Mã máy</TableHead>
@@ -300,48 +300,80 @@ function MachinesPage() {
               <TableHead>Hãng</TableHead>
               <TableHead>Serial</TableHead>
               <TableHead className="text-right">Giá máy</TableHead>
-              {isAdmin && <TableHead className="text-right">Thao tác</TableHead>}
+              <TableHead>Bảo hành</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                   Đang tải…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                   Chưa có máy nào trong danh mục.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((m) => (
-                <TableRow key={m.id}>
-                  <TableCell className="font-medium">{m.code}</TableCell>
-                  <TableCell>{m.name}</TableCell>
-                  <TableCell>{m.brand ?? "—"}</TableCell>
-                  <TableCell>{m.serial_number ?? "—"}</TableCell>
-                  <TableCell className="num text-right">{formatMoney(m.price)}</TableCell>
-                  {isAdmin && (
+              filtered.map((m) => {
+                const info = computeWarranty(m);
+                return (
+                  <TableRow key={m.id}>
+                    <TableCell className="font-medium">{m.code}</TableCell>
+                    <TableCell>{m.name}</TableCell>
+                    <TableCell>{m.brand ?? "—"}</TableCell>
+                    <TableCell>{m.serial_number ?? "—"}</TableCell>
+                    <TableCell className="num text-right">{formatMoney(m.price)}</TableCell>
+                    <TableCell>
+                      <Badge className={info.className}>{info.label}</Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="Xoá máy"
-                        onClick={() => remove.mutate(m.id)}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDetail(m)}
+                        aria-label="Xem bảo hành"
                       >
-                        <Trash2 className="size-4 text-destructive" />
+                        <ShieldCheck className="size-4" /> Bảo hành
                       </Button>
+                      {isAdmin && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Xoá máy"
+                          onClick={() => remove.mutate(m.id)}
+                        >
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      )}
                     </TableCell>
-                  )}
-                </TableRow>
-              ))
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={detail !== null} onOpenChange={(o) => !o && setDetail(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{detail ? `${detail.name} (${detail.code})` : "Chi tiết thiết bị"}</DialogTitle>
+            <DialogDescription>
+              Theo dõi bảo hành theo thời gian và số bản chụp của thiết bị.
+            </DialogDescription>
+          </DialogHeader>
+          {detail && (
+            <WarrantyPanel
+              machine={filtered.find((m) => m.id === detail.id) ?? detail}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
