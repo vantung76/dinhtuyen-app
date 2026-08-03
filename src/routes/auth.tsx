@@ -20,12 +20,12 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Đăng nhập | Quản lý trả góp máy photocopy" },
+      { title: "Đăng nhập | Cổng khách hàng Định Tuyến" },
       {
         name: "description",
         content: "Đăng nhập tài khoản nhân viên để quản lý hợp đồng trả góp máy photocopy.",
       },
-      { property: "og:title", content: "Đăng nhập hệ thống trả góp máy photocopy" },
+      { property: "og:title", content: "Cổng khách hàng Định Tuyến — Trả góp & Trả thẳng" },
       {
         property: "og:description",
         content: "Khu vực dành cho nhân viên và quản trị viên của hệ thống trả góp.",
@@ -133,7 +133,7 @@ function AuthPage() {
             <Printer className="size-5" aria-hidden />
           </span>
           <div>
-            <h1 className="text-lg font-semibold leading-tight">Trả góp máy photocopy</h1>
+            <h1 className="text-lg font-semibold leading-tight">Cổng khách hàng Định Tuyến</h1>
             <p className="text-xs text-muted-foreground">Khách hàng &amp; nhân viên</p>
           </div>
         </div>
