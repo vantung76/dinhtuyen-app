@@ -9,6 +9,7 @@ import {
   addMonths,
   formatDate,
   formatMoney,
+  formatNumber,
 } from "@/lib/format";
 import type { ContractSummary, Machine, Payment } from "@/lib/types";
 import { WarrantyPanel } from "@/components/WarrantyPanel";
@@ -47,20 +48,26 @@ function nextDueDate(c: ContractSummary): string | null {
 function CustomerPortal() {
   const { user, fullName } = useAuth();
 
-  const { data: contracts = [], isLoading } = useQuery({
+  const {
+    data: contracts = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["portal-contracts", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
       // Tự gắn hồ sơ khách hàng có cùng email với tài khoản đang đăng nhập
-      await (supabase.rpc as unknown as (fn: string) => Promise<unknown>)(
-        "claim_my_customer_records",
-      ).catch(() => undefined);
+      try {
+        await supabase.rpc("claim_my_customer_records" as never);
+      } catch {
+        /* bỏ qua nếu không gắn được */
+      }
 
-      const { data, error } = await supabase
+      const { data, error: err } = await supabase
         .from("contract_summaries")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) throw error;
+      if (err) throw err;
       return (data ?? []) as unknown as ContractSummary[];
     },
   });
@@ -95,6 +102,19 @@ function CustomerPortal() {
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Đang tải dữ liệu của bạn…</p>;
   }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-destructive/40 bg-card p-8 text-center shadow-panel">
+        <h1 className="text-lg font-semibold">Không tải được dữ liệu</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {(error as Error).message || "Vui lòng thử tải lại trang hoặc liên hệ nhân viên hỗ trợ."}
+        </p>
+      </div>
+    );
+  }
+
+
 
   if (contracts.length === 0) {
     return (
@@ -145,7 +165,9 @@ function CustomerPortal() {
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Counter hiện tại</dt>
-                      <dd className="num font-medium">{machine?.counter_current ?? "—"}</dd>
+                      <dd className="num font-medium">
+                        {machine ? formatNumber(machine.counter_current) : "—"}
+                      </dd>
                     </div>
                   </dl>
                 </article>
