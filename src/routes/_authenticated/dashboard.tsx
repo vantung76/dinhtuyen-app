@@ -351,6 +351,8 @@ function DashboardPage() {
           />
         </div>
         <ExcelExportButton onExport={exportContracts} />
+        <ExcelExportButton onExport={exportFullBackup} label="Backup toàn bộ" />
+
       </div>
 
 
