@@ -12,6 +12,7 @@ import { changeCustomerEmail } from "@/lib/customer.functions";
 import { removeCustomer } from "@/lib/customer-delete.functions";
 import { exportExcel, fileDateSuffix } from "@/lib/excel-export";
 import { ExcelExportButton } from "@/components/ExcelExportButton";
+import { exportCustomerBackup } from "@/lib/customer-backup";
 import type { Customer, PaymentType } from "@/lib/types";
 
 
@@ -385,6 +386,11 @@ function CustomersPage() {
                   <TableCell className="max-w-64 truncate text-sm">{c.address ?? "—"}</TableCell>
                   <TableCell className="text-sm">{formatDate(c.created_at)}</TableCell>
                   <TableCell className="text-right whitespace-nowrap">
+                    <ExcelExportButton
+                      iconOnly
+                      title={`Xuất toàn bộ dữ liệu của ${c.name}`}
+                      onExport={() => exportCustomerBackup(c)}
+                    />
                     <Button
                       size="icon"
                       variant="ghost"
@@ -395,6 +401,7 @@ function CustomersPage() {
                     >
                       <MailCheck className="size-4 text-primary" />
                     </Button>
+
                     <Button
                       size="icon"
                       variant="ghost"
