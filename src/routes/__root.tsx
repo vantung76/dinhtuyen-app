@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Quản lý trả góp máy photocopy | Hệ thống nội bộ" },
+      { title: "Hệ thống quản lý máy photocopy Định Tuyến" },
       {
         name: "description",
         content:
@@ -87,8 +87,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:title", content: "Quản lý trả góp máy photocopy | Hệ thống nội bộ" },
-      { name: "twitter:title", content: "Quản lý trả góp máy photocopy | Hệ thống nội bộ" },
+      { property: "og:title", content: "Hệ thống quản lý máy photocopy Định Tuyến" },
+      { name: "twitter:title", content: "Hệ thống quản lý máy photocopy Định Tuyến" },
       { property: "og:description", content: "Tạo hợp đồng trả góp, tự động tính tiền đóng hằng tháng, cập nhật phiếu thu và theo dõi công nợ máy photocopy cho từng khách hàng." },
       { name: "twitter:description", content: "Tạo hợp đồng trả góp, tự động tính tiền đóng hằng tháng, cập nhật phiếu thu và theo dõi công nợ máy photocopy cho từng khách hàng." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/877f78bf-82cd-4b8b-bab3-3547223abaf5/id-preview-7615a8ed--19402b13-36d1-4f34-8044-addd6010421e.lovable.app-1785744406775.png" },
