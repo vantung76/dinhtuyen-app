@@ -173,7 +173,14 @@ export async function sendCustomerActivation(
   }
   if (!actionLink) throw new Error("Không tạo được liên kết kích hoạt");
 
-  const { subject, html } = activationEmail({ customerName: customer.name, actionLink });
+  const { getCustomerMachineInfoById } = await import("./machine-info.server");
+  const info = await getCustomerMachineInfoById(input.customerId);
+  const { subject, html } = activationEmail({
+    customerName: customer.name,
+    actionLink,
+    machineLabel: info.machineLabel,
+    paymentType: info.paymentType,
+  });
   await sendResendEmail({ to: customer.email, subject, html });
   return { sent: true, to: customer.email };
 }
