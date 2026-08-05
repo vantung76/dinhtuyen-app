@@ -10,7 +10,10 @@ import { formatDate, makeCode, PAYMENT_TYPE_LABEL } from "@/lib/format";
 import { sendCustomerActivation } from "@/lib/email.functions";
 import { changeCustomerEmail } from "@/lib/customer.functions";
 import { removeCustomer } from "@/lib/customer-delete.functions";
+import { exportExcel, fileDateSuffix } from "@/lib/excel-export";
+import { ExcelExportButton } from "@/components/ExcelExportButton";
 import type { Customer, PaymentType } from "@/lib/types";
+
 
 
 
@@ -187,6 +190,34 @@ function CustomersPage() {
     [customers],
   );
 
+  const exportCustomers = async () => {
+    await exportExcel(
+      [
+        {
+          name: "Danh sách khách hàng",
+          rows: filtered,
+          columns: [
+            { header: "Mã KH", value: (c: Customer) => c.code },
+            { header: "Tên khách hàng", value: (c: Customer) => c.name },
+            {
+              header: "Hình thức",
+              value: (c: Customer) => PAYMENT_TYPE_LABEL[c.payment_type ?? "tra_gop"],
+            },
+            { header: "Điện thoại", value: (c: Customer) => c.phone ?? "" },
+            { header: "Email", value: (c: Customer) => c.email ?? "" },
+            { header: "Địa chỉ", value: (c: Customer) => c.address ?? "" },
+            { header: "Ghi chú", value: (c: Customer) => c.note ?? "" },
+            { header: "Ngày tạo", value: (c: Customer) => formatDate(c.created_at) },
+          ],
+        },
+      ],
+      `Backup_Danh_Sach_Khach_Hang_${fileDateSuffix()}.xlsx`,
+    );
+    return filtered.length;
+  };
+
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -291,15 +322,19 @@ function CustomersPage() {
         </Tabs>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          className="pl-9"
-          placeholder="Tìm khách hàng…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative w-full max-w-sm sm:w-auto sm:flex-1">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Tìm khách hàng…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <ExcelExportButton onExport={exportCustomers} />
       </div>
+
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
         <Table className="min-w-[720px]">

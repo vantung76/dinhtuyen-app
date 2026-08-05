@@ -5,8 +5,17 @@ import { Plus, Search, Trash2, TriangleAlert, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { CONTRACT_STATUS_LABEL, formatDate, formatMoney } from "@/lib/format";
-import type { ContractStatus, ContractSummary } from "@/lib/types";
+import {
+  CONTRACT_STATUS_LABEL,
+  formatDate,
+  formatMoney,
+  PAYMENT_TYPE_LABEL,
+} from "@/lib/format";
+import { computeWarranty } from "@/lib/warranty";
+import { exportExcel, fileDateSuffix } from "@/lib/excel-export";
+import { ExcelExportButton } from "@/components/ExcelExportButton";
+import type { ContractStatus, ContractSummary, Machine } from "@/lib/types";
+
 import { ContractFormDialog } from "@/components/ContractFormDialog";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ZaloReminderButton } from "@/components/ZaloReminderButton";
@@ -137,6 +146,116 @@ function DashboardPage() {
     return { active, overdue, debt, collected };
   }, [contracts]);
 
+  const exportContracts = async () => {
+    const { data: machineRows, error: machineErr } = await supabase
+      .from("machines")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (machineErr) throw machineErr;
+    const machines = (machineRows ?? []) as unknown as Machine[];
+
+    await exportExcel(
+      [
+        {
+          name: "Dòng tiền trả góp",
+          rows: filtered,
+          columns: [
+            { header: "Mã hợp đồng", value: (c: ContractSummary) => c.code },
+            { header: "Khách hàng", value: (c: ContractSummary) => c.customer_name },
+            { header: "Điện thoại", value: (c: ContractSummary) => c.customer_phone ?? "" },
+            {
+              header: "Hình thức",
+              value: (c: ContractSummary) =>
+                PAYMENT_TYPE_LABEL[c.payment_type ?? "tra_gop"],
+            },
+            { header: "Máy photocopy", value: (c: ContractSummary) => c.machine_name },
+            { header: "Mã máy", value: (c: ContractSummary) => c.machine_code },
+            { header: "Tổng giá trị máy", value: (c: ContractSummary) => Number(c.total_value) },
+            { header: "Trả trước", value: (c: ContractSummary) => Number(c.down_payment) },
+            { header: "Số tháng", value: (c: ContractSummary) => Number(c.months) },
+            { header: "Lãi suất/tháng (%)", value: (c: ContractSummary) => Number(c.interest_rate) },
+            { header: "Phải đóng mỗi tháng", value: (c: ContractSummary) => Number(c.monthly_payment) },
+            { header: "Đã thanh toán", value: (c: ContractSummary) => Number(c.total_paid) },
+            { header: "Còn nợ", value: (c: ContractSummary) => Number(c.remaining) },
+            { header: "Số kỳ đã đóng", value: (c: ContractSummary) => Number(c.payments_count) },
+            {
+              header: "Lần đóng gần nhất",
+              value: (c: ContractSummary) =>
+                c.last_payment_date ? formatDate(c.last_payment_date) : "",
+            },
+            {
+              header: "Hạn đóng kỳ tới",
+              value: (c: ContractSummary) =>
+                Number(c.remaining) > 0
+                  ? formatDate(nextDueDate(c.start_date, c.payments_count, c.months))
+                  : "",
+            },
+            { header: "Ngày bắt đầu", value: (c: ContractSummary) => formatDate(c.start_date) },
+            { header: "Ngày kết thúc", value: (c: ContractSummary) => formatDate(c.end_date) },
+            {
+              header: "Trạng thái",
+              value: (c: ContractSummary) => CONTRACT_STATUS_LABEL[c.status],
+            },
+            { header: "Ghi chú", value: (c: ContractSummary) => c.note ?? "" },
+          ],
+        },
+        {
+          name: "Theo dõi bảo hành",
+          rows: machines,
+          columns: [
+            { header: "Mã máy", value: (m: Machine) => m.code },
+            { header: "Tên máy", value: (m: Machine) => m.name },
+            { header: "Hãng", value: (m: Machine) => m.brand ?? "" },
+            { header: "Số serial", value: (m: Machine) => m.serial_number ?? "" },
+            { header: "Giá máy", value: (m: Machine) => Number(m.price) },
+            {
+              header: "Ngày bắt đầu bảo hành",
+              value: (m: Machine) =>
+                m.warranty_start_date ? formatDate(m.warranty_start_date) : "",
+            },
+            { header: "Số tháng bảo hành", value: (m: Machine) => Number(m.warranty_months ?? 0) },
+            {
+              header: "Ngày hết hạn bảo hành",
+              value: (m: Machine) => {
+                const w = computeWarranty(m);
+                return w.endDate ? formatDate(w.endDate) : "";
+              },
+            },
+            {
+              header: "Số bản chụp bảo hành",
+              value: (m: Machine) => Number(m.warranty_copies ?? 0),
+            },
+            { header: "Chỉ số đầu", value: (m: Machine) => Number(m.counter_start ?? 0) },
+            { header: "Chỉ số hiện tại", value: (m: Machine) => Number(m.counter_current ?? 0) },
+            {
+              header: "Bản chụp đã dùng",
+              value: (m: Machine) => computeWarranty(m).copiesUsed,
+            },
+            {
+              header: "Bản chụp còn lại",
+              value: (m: Machine) => computeWarranty(m).copiesLeft,
+            },
+            {
+              header: "Trạng thái bảo hành",
+              value: (m: Machine) => computeWarranty(m).label,
+            },
+            {
+              header: "Cập nhật chỉ số",
+              value: (m: Machine) =>
+                m.counter_updated_at ? formatDate(m.counter_updated_at) : "",
+            },
+            { header: "Ghi chú", value: (m: Machine) => m.note ?? "" },
+          ],
+        },
+      ],
+      `Backup_Hop_Dong_Va_Bao_Hanh_${fileDateSuffix()}.xlsx`,
+    );
+
+    return filtered.length + machines.length;
+  };
+
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -231,7 +350,9 @@ function DashboardPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <ExcelExportButton onExport={exportContracts} />
       </div>
+
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
         <Table className="min-w-[720px]">
