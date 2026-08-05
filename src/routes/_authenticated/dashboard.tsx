@@ -13,6 +13,8 @@ import {
 } from "@/lib/format";
 import { computeWarranty } from "@/lib/warranty";
 import { exportExcel, fileDateSuffix } from "@/lib/excel-export";
+import { exportFullBackup } from "@/lib/full-backup";
+
 import { ExcelExportButton } from "@/components/ExcelExportButton";
 import type { ContractStatus, ContractSummary, Machine } from "@/lib/types";
 
@@ -351,6 +353,8 @@ function DashboardPage() {
           />
         </div>
         <ExcelExportButton onExport={exportContracts} />
+        <ExcelExportButton onExport={exportFullBackup} label="Backup toàn bộ" />
+
       </div>
 
 
