@@ -63,7 +63,7 @@ function layout(title: string, inner: string) {
       ${inner}
     </div>
     <p style="margin:16px 0 0;font-size:12px;color:#98a2b3;text-align:center">
-      Email tự động từ hệ thống quản lý trả góp máy photocopy — CTY DINHTUYEN (info@dinhtuyen.com)
+      Email tự động từ hệ thống quản lý máy photocopy — CTY DINHTUYEN (info@dinhtuyen.com)
     </p>
   </div></body></html>`;
 }
@@ -116,7 +116,7 @@ export function paymentReceiptEmail(input: {
 export function activationEmail(input: { customerName: string; actionLink: string }) {
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
-  CTY DINHTUYEN đã tạo tài khoản tra cứu hợp đồng trả góp cho quý khách.</p>
+  CTY DINHTUYEN đã tạo tài khoản tra cứu cho quý khách.</p>
   <p style="text-align:center;margin:24px 0">
     <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Kích hoạt tài khoản</a>
   </p>
@@ -153,14 +153,10 @@ export function reminderEmail(input: {
   };
 }
 
-export function welcomeEmail(input: {
-  fullName: string;
-  roleLabel: string;
-  loginUrl: string;
-}) {
+export function welcomeEmail(input: { fullName: string; roleLabel: string; loginUrl: string }) {
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.fullName)}</strong>,<br/>
-  Tài khoản <strong>${escapeHtml(input.roleLabel)}</strong> của bạn tại hệ thống quản lý trả góp máy photocopy — CTY DINHTUYEN đã được kích hoạt thành công.</p>
+  Tài khoản <strong>${escapeHtml(input.roleLabel)}</strong> của bạn tại hệ thống quản lý máy photocopy — CTY DINHTUYEN đã được kích hoạt thành công.</p>
   <p style="text-align:center;margin:24px 0">
     <a href="${escapeHtml(input.loginUrl)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Đăng nhập ngay</a>
   </p>
@@ -172,15 +168,10 @@ export function welcomeEmail(input: {
   };
 }
 
-export function staffInvitationEmail(input: {
-
-  fullName: string;
-  actionLink: string;
-  roleLabel: string;
-}) {
+export function staffInvitationEmail(input: { fullName: string; actionLink: string; roleLabel: string }) {
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.fullName)}</strong>,<br/>
-  CTY DINHTUYEN mời bạn tham gia hệ thống quản lý trả góp máy photocopy với vai trò <strong>${escapeHtml(input.roleLabel)}</strong>.</p>
+  CTY DINHTUYEN mời bạn tham gia hệ thống quản lý máy photocopy với vai trò <strong>${escapeHtml(input.roleLabel)}</strong>.</p>
   <p style="text-align:center;margin:24px 0">
     <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Kích hoạt tài khoản nhân viên</a>
   </p>
@@ -195,7 +186,7 @@ export function staffInvitationEmail(input: {
 export function passwordResetEmail(input: { fullName: string; actionLink: string }) {
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.fullName)}</strong>,<br/>
-  Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại hệ thống quản lý trả góp máy photocopy — CTY DINHTUYEN.</p>
+  Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại hệ thống quản lý máy photocopy — CTY DINHTUYEN.</p>
   <p style="text-align:center;margin:24px 0">
     <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Đặt lại mật khẩu</a>
   </p>
