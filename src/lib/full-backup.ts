@@ -12,7 +12,7 @@ import type { ContractSummary, Customer, Machine, Payment } from "@/lib/types";
 
 type StaffRow = {
   id: string;
-  email: string | null;
+  phone: string | null;
   full_name: string | null;
   created_at: string | null;
   roles: string[];
@@ -50,7 +50,12 @@ export async function exportFullBackup(): Promise<number> {
 
   const roleRows = (rolesRes.data ?? []) as { user_id: string; role: string }[];
   const users: StaffRow[] = (
-    (profilesRes.data ?? []) as { id: string; email: string | null; full_name: string | null; created_at: string | null }[]
+    (profilesRes.data ?? []) as unknown as {
+      id: string;
+      phone: string | null;
+      full_name: string | null;
+      created_at: string | null;
+    }[]
   ).map((p) => ({
     ...p,
     roles: roleRows.filter((r) => r.user_id === p.id).map((r) => r.role),
@@ -186,8 +191,8 @@ export async function exportFullBackup(): Promise<number> {
         name: "Người dùng",
         rows: users,
         columns: [
-          { header: "Email", value: (u: StaffRow) => u.email ?? "" },
           { header: "Họ tên", value: (u: StaffRow) => u.full_name ?? "" },
+          { header: "Điện thoại", value: (u: StaffRow) => u.phone ?? "" },
           {
             header: "Quyền",
             value: (u: StaffRow) => u.roles.map((r) => ROLE_LABEL[r] ?? r).join(", "),
