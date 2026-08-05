@@ -91,7 +91,7 @@ export function WarrantyPanel({ machine }: { machine: Machine }) {
         </div>
       </dl>
 
-      {isStaff && (
+      {canEditCounter && (
         <div className="mt-5 flex flex-wrap items-end gap-3 border-t border-border pt-4">
           <div className="w-full space-y-2 sm:w-56">
             <Label htmlFor="counter-quick">Nhập nhanh counter hiện tại</Label>
