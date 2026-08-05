@@ -35,9 +35,11 @@ function autoWidths(header: string[], body: (string | number)[][]) {
 
 /** Xuất một hoặc nhiều sheet ra file .xlsx (header in hoa, bôi đậm, nền xám, auto-fit cột). */
 export async function exportExcel(
-  sheets: SheetSpec<never>[] | SheetSpec<any>[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sheets: SheetSpec<any>[],
   fileName: string,
 ): Promise<void> {
+
   const XLSX = await import("xlsx-js-style");
   const wb = XLSX.utils.book_new();
 
