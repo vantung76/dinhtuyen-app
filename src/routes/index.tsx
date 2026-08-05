@@ -6,13 +6,13 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Quản lý trả góp máy photocopy | Hệ thống nội bộ" },
+      { title: "Hệ thống quản lý máy photocopy Định Tuyến" },
       {
         name: "description",
         content:
           "Tạo hợp đồng trả góp, tự động tính tiền đóng hằng tháng, cập nhật phiếu thu và theo dõi công nợ máy photocopy cho từng khách hàng.",
       },
-      { property: "og:title", content: "Quản lý trả góp máy photocopy | Hệ thống nội bộ" },
+      { property: "og:title", content: "Hệ thống quản lý máy photocopy Định Tuyến" },
       {
         property: "og:description",
         content:
@@ -57,7 +57,7 @@ function Index() {
             Hệ thống nội bộ
           </p>
           <h1 className="mt-4 max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">
-            Quản lý trả góp máy photocopy
+            Hệ thống quản lý máy photocopy Định Tuyến
           </h1>
           <p className="mt-4 max-w-2xl text-base text-sidebar-foreground/80">
             Theo dõi toàn bộ hợp đồng trả góp, kỳ thu tiền hằng tháng và công nợ còn lại của từng

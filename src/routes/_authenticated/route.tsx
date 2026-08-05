@@ -59,7 +59,7 @@ function AuthenticatedLayout() {
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <Printer className="size-4" aria-hidden />
             </span>
-            <span className="truncate text-sm font-semibold">Trả góp máy photocopy</span>
+            <span className="truncate text-sm font-semibold">Hệ thống quản lý máy photocopy Định Tuyến</span>
           </Link>
 
           <div className="col-start-2 row-start-1 flex items-center gap-2 lg:order-3 lg:ml-auto">

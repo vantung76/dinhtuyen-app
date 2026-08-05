@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/_authenticated/access")({
   head: () => ({
     meta: [
-      { title: "Kiểm tra phân quyền tài khoản | Trả góp máy photocopy" },
+      { title: "Kiểm tra phân quyền tài khoản | Hệ thống quản lý máy photocopy Định Tuyến" },
       {
         name: "description",
         content:
