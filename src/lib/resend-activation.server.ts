@@ -24,7 +24,14 @@ export async function resendActivation(input: { email: string; siteUrl?: string 
     (magic.data.user?.user_metadata?.["full_name"] as string | undefined)?.trim() ||
     email.split("@")[0]!;
 
-  const { subject, html } = activationEmail({ customerName, actionLink });
+  const { getCustomerMachineInfoByEmail } = await import("./machine-info.server");
+  const info = await getCustomerMachineInfoByEmail(email);
+  const { subject, html } = activationEmail({
+    customerName,
+    actionLink,
+    machineLabel: info.machineLabel,
+    paymentType: info.paymentType,
+  });
   await sendResendEmail({ to: email, subject, html });
   return { sent: true };
 }
