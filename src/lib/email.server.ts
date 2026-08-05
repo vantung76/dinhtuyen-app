@@ -116,14 +116,14 @@ export function paymentReceiptEmail(input: {
 export function activationEmail(input: { customerName: string; actionLink: string }) {
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
-  CTY DINHTUYEN đã tạo tài khoản tra cứu cho quý khách.</p>
+  CTY DINHTUYEN đã tạo tài khoản tra cứu máy photocopy cho quý khách.</p>
   <p style="text-align:center;margin:24px 0">
     <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Kích hoạt tài khoản</a>
   </p>
   <p style="font-size:13px;color:#667085;word-break:break-all">Nếu nút không hoạt động, vui lòng mở liên kết sau:<br/>${escapeHtml(input.actionLink)}</p>
   <p style="font-size:13px;color:#667085">Liên kết có hiệu lực trong thời gian giới hạn. Nếu quý khách không yêu cầu, vui lòng bỏ qua email này.</p>`;
   return {
-    subject: "Kích hoạt tài khoản tra cứu hợp đồng trả góp",
+    subject: "Kích hoạt tài khoản tra cứu hợp đồng máy photocopy.",
     html: layout("Kích hoạt tài khoản khách hàng", inner),
   };
 }
@@ -179,7 +179,7 @@ export function staffInvitationEmail(input: { fullName: string; actionLink: stri
   <p style="font-size:13px;color:#667085">Sau khi kích hoạt, bạn hãy đặt mật khẩu và đăng nhập để tạo hợp đồng, thu tiền trả góp.</p>`;
   return {
     subject: `Kích hoạt tài khoản ${input.roleLabel} — CTY DINHTUYEN`,
-    html: layout("Mời tham gia hệ thống quản lý trả góp", inner),
+    html: layout("Mời tham gia hệ thống quản lý máy photocopy Định Tuyến", inner),
   };
 }
 
