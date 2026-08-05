@@ -5,8 +5,17 @@ import { Plus, Search, Trash2, TriangleAlert, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { CONTRACT_STATUS_LABEL, formatDate, formatMoney } from "@/lib/format";
-import type { ContractStatus, ContractSummary } from "@/lib/types";
+import {
+  CONTRACT_STATUS_LABEL,
+  formatDate,
+  formatMoney,
+  PAYMENT_TYPE_LABEL,
+} from "@/lib/format";
+import { computeWarranty } from "@/lib/warranty";
+import { exportExcel, fileDateSuffix } from "@/lib/excel-export";
+import { ExcelExportButton } from "@/components/ExcelExportButton";
+import type { ContractStatus, ContractSummary, Machine } from "@/lib/types";
+
 import { ContractFormDialog } from "@/components/ContractFormDialog";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ZaloReminderButton } from "@/components/ZaloReminderButton";
