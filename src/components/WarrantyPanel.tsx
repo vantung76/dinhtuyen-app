@@ -13,7 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function WarrantyPanel({ machine }: { machine: Machine }) {
-  const { isStaff } = useAuth();
+  const { isStaff, isCustomer, rolesLoaded, session } = useAuth();
+  // Hiển thị cho mọi tài khoản nội bộ (admin/nhân viên). Nếu vì lý do nào đó
+  // danh sách quyền chưa tải được, vẫn hiện ô nhập cho tài khoản không phải
+  // khách hàng — thao tác lưu vẫn được bảo vệ bởi RLS phía máy chủ.
+  const canEditCounter = Boolean(session) && !isCustomer && (isStaff || rolesLoaded);
   const queryClient = useQueryClient();
   const [counter, setCounter] = useState("");
 
