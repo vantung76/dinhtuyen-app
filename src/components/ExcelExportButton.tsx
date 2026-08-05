@@ -8,10 +8,13 @@ type Props = {
   onExport: () => Promise<number>;
   label?: string;
   className?: string;
+  /** Chỉ hiện icon (dùng trong bảng danh sách). */
+  iconOnly?: boolean;
+  title?: string;
 };
 
 /** Nút "Xuất dữ liệu" màu xanh lá đặc trưng Excel. */
-export function ExcelExportButton({ onExport, label = "Xuất dữ liệu", className }: Props) {
+export function ExcelExportButton({ onExport, label = "Xuất dữ liệu", className, iconOnly, title }: Props) {
   const [loading, setLoading] = useState(false);
 
   const run = async () => {
@@ -28,6 +31,27 @@ export function ExcelExportButton({ onExport, label = "Xuất dữ liệu", clas
     }
   };
 
+  if (iconOnly) {
+    return (
+      <Button
+        type="button"
+        size="icon"
+        variant="ghost"
+        disabled={loading}
+        aria-label={title ?? label}
+        title={title ?? label}
+        onClick={() => void run()}
+        className={className}
+      >
+        {loading ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <FileSpreadsheet className="size-4 text-[#107C41] dark:text-[#4ED07F]" />
+        )}
+      </Button>
+    );
+  }
+
   return (
     <Button
       type="button"
@@ -41,3 +65,4 @@ export function ExcelExportButton({ onExport, label = "Xuất dữ liệu", clas
     </Button>
   );
 }
+
