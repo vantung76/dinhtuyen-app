@@ -94,7 +94,14 @@ export async function changeCustomerEmail(
   }
   if (!actionLink) throw new Error("Đã đổi email nhưng chưa tạo được liên kết kích hoạt");
 
-  const { subject, html } = activationEmail({ customerName: customer.name, actionLink });
+  const { getCustomerMachineInfoById } = await import("./machine-info.server");
+  const info = await getCustomerMachineInfoById(customer.id);
+  const { subject, html } = activationEmail({
+    customerName: customer.name,
+    actionLink,
+    machineLabel: info.machineLabel,
+    paymentType: info.paymentType,
+  });
   await sendResendEmail({ to: newEmail, subject, html });
 
   return {

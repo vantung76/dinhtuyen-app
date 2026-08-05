@@ -113,20 +113,50 @@ export function paymentReceiptEmail(input: {
   };
 }
 
-export function activationEmail(input: { customerName: string; actionLink: string }) {
+export function activationEmail(input: {
+  customerName: string;
+  actionLink: string;
+  machineLabel?: string | null;
+  paymentType?: "tra_gop" | "tra_thang" | null;
+}) {
+  const machine = input.machineLabel?.trim() || "";
+  const isFullPayment = input.paymentType === "tra_thang";
+
+  const headline = isFullPayment
+    ? `Kích hoạt bảo hành máy photocopy ${machine}`.trim()
+    : "Kích hoạt tài khoản khách hàng";
+
+  const intro = isFullPayment
+    ? `<p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
+    CTY DINHTUYEN trân trọng mời quý khách <strong>${escapeHtml(`Kích hoạt bảo hành máy photocopy ${machine}`.trim())}</strong> và tài khoản tra cứu thông tin bảo hành.</p>`
+    : `<p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
+    CTY DINHTUYEN đã tạo tài khoản tra cứu hợp đồng trả góp${machine ? ` máy photocopy <strong>${escapeHtml(machine)}</strong>` : " máy photocopy"} cho quý khách.</p>`;
+
+  const machineBox = machine
+    ? `<table style="width:100%;border-collapse:collapse;margin-top:8px">
+      ${row("Máy photocopy", machine, true)}
+    </table>`
+    : "";
+
   const inner = `
-  <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
-  CTY DINHTUYEN đã tạo tài khoản tra cứu máy photocopy cho quý khách.</p>
+  ${intro}
+  ${machineBox}
   <p style="text-align:center;margin:24px 0">
-    <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">Kích hoạt tài khoản</a>
+    <a href="${escapeHtml(input.actionLink)}" style="display:inline-block;background:#0b5cd5;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px">${isFullPayment ? "Kích hoạt bảo hành" : "Kích hoạt tài khoản"}</a>
   </p>
   <p style="font-size:13px;color:#667085;word-break:break-all">Nếu nút không hoạt động, vui lòng mở liên kết sau:<br/>${escapeHtml(input.actionLink)}</p>
   <p style="font-size:13px;color:#667085">Liên kết có hiệu lực trong thời gian giới hạn. Nếu quý khách không yêu cầu, vui lòng bỏ qua email này.</p>`;
+
   return {
-    subject: "Kích hoạt tài khoản tra cứu hợp đồng máy photocopy.",
-    html: layout("Kích hoạt tài khoản khách hàng", inner),
+    subject: isFullPayment
+      ? `Kích hoạt bảo hành máy photocopy ${machine}`.trim()
+      : machine
+        ? `Kích hoạt tài khoản tra cứu hợp đồng máy photocopy ${machine}`
+        : "Kích hoạt tài khoản tra cứu hợp đồng máy photocopy.",
+    html: layout(headline, inner),
   };
 }
+
 
 export function reminderEmail(input: {
   customerName: string;
@@ -134,10 +164,12 @@ export function reminderEmail(input: {
   monthlyPayment: number;
   remaining: number;
   dueDate: string | null;
+  machineLabel?: string | null;
 }) {
+  const machine = input.machineLabel?.trim() || "";
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
-  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp máy photocopy sắp tới của quý khách.</p>
+  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp máy photocopy${machine ? ` <strong>${escapeHtml(machine)}</strong>` : ""} sắp tới của quý khách.</p>
   <div style="background:#fff7ed;border-radius:12px;padding:16px;margin:16px 0;text-align:center">
     <div style="font-size:13px;color:#475467">Số tiền cần đóng</div>
     <div style="font-size:26px;font-weight:700;color:#b54708;margin-top:4px">${escapeHtml(money(input.monthlyPayment))}</div>
@@ -145,13 +177,15 @@ export function reminderEmail(input: {
   </div>
   <table style="width:100%;border-collapse:collapse">
     ${row("Hợp đồng", input.contractCode)}
+    ${machine ? row("Máy photocopy", machine) : ""}
     ${row("Dư nợ còn lại", money(input.remaining), true)}
   </table>`;
   return {
-    subject: `Nhắc đóng tiền trả góp — HĐ ${input.contractCode}`,
+    subject: `Nhắc đóng tiền trả góp${machine ? ` máy ${machine}` : ""} — HĐ ${input.contractCode}`,
     html: layout("Thông báo kỳ đóng tiền trả góp", inner),
   };
 }
+
 
 export function welcomeEmail(input: { fullName: string; roleLabel: string; loginUrl: string }) {
   const inner = `
