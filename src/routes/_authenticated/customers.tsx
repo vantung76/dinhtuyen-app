@@ -291,15 +291,19 @@ function CustomersPage() {
         </Tabs>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          className="pl-9"
-          placeholder="Tìm khách hàng…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative w-full max-w-sm sm:w-auto sm:flex-1">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Tìm khách hàng…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <ExcelExportButton onExport={exportCustomers} />
       </div>
+
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
         <Table className="min-w-[720px]">
