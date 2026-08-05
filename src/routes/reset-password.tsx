@@ -13,7 +13,7 @@ export const Route = createFileRoute("/reset-password")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Đặt lại mật khẩu | Trả góp máy photocopy" },
+      { title: "Đặt lại mật khẩu | Hệ thống quản lý máy photocopy Định Tuyến" },
       {
         name: "description",
         content: "Tạo mật khẩu mới cho tài khoản hệ thống quản lý trả góp máy photocopy.",

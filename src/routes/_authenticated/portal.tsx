@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/portal")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Cổng thông tin khách hàng | Trả góp máy photocopy" },
+      { title: "Cổng thông tin khách hàng | Hệ thống quản lý máy photocopy Định Tuyến" },
       {
         name: "description",
         content:
