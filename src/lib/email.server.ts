@@ -137,7 +137,7 @@ export function reminderEmail(input: {
 }) {
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
-  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp sắp tới của quý khách.</p>
+  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp máy photocopy sắp tới của quý khách.</p>
   <div style="background:#fff7ed;border-radius:12px;padding:16px;margin:16px 0;text-align:center">
     <div style="font-size:13px;color:#475467">Số tiền cần đóng</div>
     <div style="font-size:26px;font-weight:700;color:#b54708;margin-top:4px">${escapeHtml(money(input.monthlyPayment))}</div>
