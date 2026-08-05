@@ -231,7 +231,9 @@ function DashboardPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <ExcelExportButton onExport={exportContracts} />
       </div>
+
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-panel">
         <Table className="min-w-[720px]">
