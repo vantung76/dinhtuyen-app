@@ -164,10 +164,12 @@ export function reminderEmail(input: {
   monthlyPayment: number;
   remaining: number;
   dueDate: string | null;
+  machineLabel?: string | null;
 }) {
+  const machine = input.machineLabel?.trim() || "";
   const inner = `
   <p style="font-size:15px;line-height:1.6">Kính gửi <strong>${escapeHtml(input.customerName)}</strong>,<br/>
-  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp máy photocopy sắp tới của quý khách.</p>
+  CTY DINHTUYEN xin thông báo lịch đóng tiền trả góp máy photocopy${machine ? ` <strong>${escapeHtml(machine)}</strong>` : ""} sắp tới của quý khách.</p>
   <div style="background:#fff7ed;border-radius:12px;padding:16px;margin:16px 0;text-align:center">
     <div style="font-size:13px;color:#475467">Số tiền cần đóng</div>
     <div style="font-size:26px;font-weight:700;color:#b54708;margin-top:4px">${escapeHtml(money(input.monthlyPayment))}</div>
@@ -175,13 +177,15 @@ export function reminderEmail(input: {
   </div>
   <table style="width:100%;border-collapse:collapse">
     ${row("Hợp đồng", input.contractCode)}
+    ${machine ? row("Máy photocopy", machine) : ""}
     ${row("Dư nợ còn lại", money(input.remaining), true)}
   </table>`;
   return {
-    subject: `Nhắc đóng tiền trả góp — HĐ ${input.contractCode}`,
+    subject: `Nhắc đóng tiền trả góp${machine ? ` máy ${machine}` : ""} — HĐ ${input.contractCode}`,
     html: layout("Thông báo kỳ đóng tiền trả góp", inner),
   };
 }
+
 
 export function welcomeEmail(input: { fullName: string; roleLabel: string; loginUrl: string }) {
   const inner = `
