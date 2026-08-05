@@ -107,17 +107,27 @@ export async function sendPaymentReminder(
   await assertStaff(supabase, userId);
   const { contract, email, name } = await loadContract(supabase, input.contractId);
 
+  const { data: machine } = await supabase
+    .from("machines")
+    .select("brand, name")
+    .eq("id", String(contract.machine_id))
+    .maybeSingle();
+  const { formatMachineLabel } = await import("./machine-info.server");
+  const machineLabel = formatMachineLabel(machine?.brand, machine?.name ?? contract.machine_name);
+
   const { subject, html } = reminderEmail({
     customerName: name,
     contractCode: String(contract.code),
     monthlyPayment: Number(contract.monthly_payment ?? 0),
     remaining: Number(contract.remaining ?? 0),
+    machineLabel,
     dueDate: nextDue(
       String(contract.start_date),
       Number(contract.payments_count ?? 0),
       Number(contract.months ?? 0),
     ),
   });
+
 
   await sendResendEmail({ to: email, subject, html });
   return { sent: true, to: email };
