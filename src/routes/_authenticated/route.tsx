@@ -20,7 +20,7 @@ const NAV = [
 ] as const;
 
 function AuthenticatedLayout() {
-  const { session, loading, fullName, isAdmin, isStaff, isCustomer, rolesLoaded, signOut } = useAuth();
+  const { session, loading, fullName, isAdmin, isStaff, rolesLoaded, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
