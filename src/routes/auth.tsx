@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Printer, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { resendActivationEmail } from "@/lib/resend-activation.functions";
@@ -174,16 +173,6 @@ function AuthPage() {
 
 
 
-  async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Không đăng nhập được bằng Google");
-      return;
-    }
-    if (result.redirected) return;
-  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-12">
@@ -348,14 +337,6 @@ function AuthPage() {
           </Tabs>
         )}
 
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          hoặc
-          <span className="h-px flex-1 bg-border" />
-        </div>
-        <Button variant="outline" className="w-full" onClick={handleGoogle}>
-          Tiếp tục với Google
-        </Button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Khách hàng đăng ký bằng đúng email đã khai báo với nhân viên để xem được hợp đồng của
           mình. Nhân viên vui lòng dùng tài khoản do quản trị viên cấp.
