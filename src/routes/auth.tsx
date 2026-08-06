@@ -96,18 +96,50 @@ function AuthPage() {
   }
 
 
+  // Khi mở trang /auth: KHÔNG tự động vào cổng khách hàng bằng phiên đăng nhập cũ.
+  // Chỉ kiểm tra phiên hiện tại; nếu email chưa được xác nhận thì đăng xuất ngay.
   useEffect(() => {
-    if (!session || !rolesLoaded) return;
+    let active = true;
+    void (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!active) return;
+      if (error || !data.user) {
+        setCheckedSession(true);
+        return;
+      }
+      if (!data.user.email_confirmed_at) {
+        setUnconfirmed(true);
+        setEmail(data.user.email ?? "");
+        await supabase.auth.signOut();
+      }
+      setCheckedSession(true);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  function goToApp() {
     void navigate({ to: isStaff ? "/dashboard" : "/portal", replace: true });
-  }, [session, rolesLoaded, isStaff, navigate]);
+  }
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error("Đăng nhập thất bại", { description: error.message });
+      return;
+    }
+    const { data: userData } = await supabase.auth.getUser();
+    setLoading(false);
+    if (userData.user && !userData.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setUnconfirmed(true);
+      toast.error("Tài khoản chưa được kích hoạt", {
+        description: "Vui lòng mở email kích hoạt trước khi đăng nhập.",
+      });
       return;
     }
     toast.success("Đăng nhập thành công");
@@ -139,6 +171,7 @@ function AuthPage() {
       () => undefined,
     );
   }
+
 
 
   async function handleGoogle() {
