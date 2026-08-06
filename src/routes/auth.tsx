@@ -174,16 +174,6 @@ function AuthPage() {
 
 
 
-  async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Không đăng nhập được bằng Google");
-      return;
-    }
-    if (result.redirected) return;
-  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-12">
