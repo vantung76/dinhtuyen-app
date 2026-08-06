@@ -20,7 +20,7 @@ const NAV = [
 ] as const;
 
 function AuthenticatedLayout() {
-  const { session, loading, fullName, isAdmin, isCustomer, rolesLoaded, signOut } = useAuth();
+  const { session, loading, fullName, isAdmin, isStaff, isCustomer, rolesLoaded, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -31,18 +31,19 @@ function AuthenticatedLayout() {
 
   useEffect(() => {
     const allowed = pathname === "/portal" || pathname === "/access";
-    if (rolesLoaded && isCustomer && !allowed) {
+    if (rolesLoaded && !isStaff && !allowed) {
       void navigate({ to: "/portal", replace: true });
     }
-  }, [rolesLoaded, isCustomer, pathname, navigate]);
+  }, [rolesLoaded, isStaff, pathname, navigate]);
 
-  if (loading || !session) {
+  if (loading || !session || !rolesLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         Đang tải…
       </div>
     );
   }
+
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
