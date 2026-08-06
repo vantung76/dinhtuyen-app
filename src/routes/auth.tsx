@@ -38,17 +38,20 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { session, isStaff, rolesLoaded } = useAuth();
-  
+  const { session, isStaff, rolesLoaded, signOut } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [sentConfirm, setSentConfirm] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [checkedSession, setCheckedSession] = useState(false);
   const sendWelcome = useServerFn(sendWelcomeEmail);
   const sendReset = useServerFn(requestPasswordReset);
   const [sentReset, setSentReset] = useState(false);
   const resendActivation = useServerFn(resendActivationEmail);
   const [resending, setResending] = useState(false);
+
 
   async function handleResendActivation() {
     if (!email.trim()) {
@@ -93,18 +96,50 @@ function AuthPage() {
   }
 
 
+  // Khi mở trang /auth: KHÔNG tự động vào cổng khách hàng bằng phiên đăng nhập cũ.
+  // Chỉ kiểm tra phiên hiện tại; nếu email chưa được xác nhận thì đăng xuất ngay.
   useEffect(() => {
-    if (!session || !rolesLoaded) return;
+    let active = true;
+    void (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!active) return;
+      if (error || !data.user) {
+        setCheckedSession(true);
+        return;
+      }
+      if (!data.user.email_confirmed_at) {
+        setUnconfirmed(true);
+        setEmail(data.user.email ?? "");
+        await supabase.auth.signOut();
+      }
+      setCheckedSession(true);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  function goToApp() {
     void navigate({ to: isStaff ? "/dashboard" : "/portal", replace: true });
-  }, [session, rolesLoaded, isStaff, navigate]);
+  }
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error("Đăng nhập thất bại", { description: error.message });
+      return;
+    }
+    const { data: userData } = await supabase.auth.getUser();
+    setLoading(false);
+    if (userData.user && !userData.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setUnconfirmed(true);
+      toast.error("Tài khoản chưa được kích hoạt", {
+        description: "Vui lòng mở email kích hoạt trước khi đăng nhập.",
+      });
       return;
     }
     toast.success("Đăng nhập thành công");
@@ -138,6 +173,7 @@ function AuthPage() {
   }
 
 
+
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
@@ -162,7 +198,39 @@ function AuthPage() {
           </div>
         </div>
 
-        {sentConfirm ? (
+        {unconfirmed ? (
+          <div className="mt-6 space-y-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+            <p>
+              Tài khoản này <strong>chưa được kích hoạt</strong>. Vui lòng mở email kích hoạt rồi
+              đăng nhập lại.
+            </p>
+          </div>
+        ) : null}
+
+        {checkedSession && session && !sentConfirm ? (
+          <div className="mt-6 space-y-3 rounded-lg border border-border bg-muted p-4">
+            <p className="text-sm text-muted-foreground">
+              Bạn đang đăng nhập bằng <strong>{session.user.email}</strong>.
+            </p>
+            <div className="flex gap-2">
+              <Button type="button" className="flex-1" onClick={goToApp} disabled={!rolesLoaded}>
+                Tiếp tục
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={async () => {
+                  await signOut();
+                  setUnconfirmed(false);
+                }}
+              >
+                Đăng xuất
+              </Button>
+            </div>
+          </div>
+        ) : sentConfirm ? (
+
           <div className="mt-8 space-y-3 rounded-lg border border-border bg-muted p-4">
             <p className="text-sm text-muted-foreground">
               Chúng tôi đã gửi email xác nhận tới <strong>{email}</strong>. Vui lòng mở email và bấm
