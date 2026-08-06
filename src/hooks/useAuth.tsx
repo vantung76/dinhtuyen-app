@@ -67,23 +67,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [userId]);
 
-  const value = useMemo<AuthValue>(
-    () => ({
+  const value = useMemo<AuthValue>(() => {
+    // Nguyên tắc tối thiểu quyền: chỉ coi là nhân viên/quản trị khi ĐÃ tải xong
+    // danh sách vai trò và thực sự có vai trò admin/staff.
+    const isStaff = rolesLoaded && (roles.includes("admin") || roles.includes("staff"));
+    const isAdmin = rolesLoaded && roles.includes("admin");
+    return {
       session,
       user: session?.user ?? null,
       roles,
-      isAdmin: roles.includes("admin"),
-      isCustomer: roles.includes("customer") && !roles.includes("admin") && !roles.includes("staff"),
-      isStaff: roles.includes("admin") || roles.includes("staff"),
+      isAdmin,
+      isCustomer: !isStaff,
+      isStaff,
       rolesLoaded,
       fullName: fullName || (session?.user.email ?? ""),
       loading,
       signOut: async () => {
         await supabase.auth.signOut();
       },
-    }),
-    [session, roles, rolesLoaded, fullName, loading],
-  );
+    };
+  }, [session, roles, rolesLoaded, fullName, loading]);
+
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
