@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { resendActivationEmail } from "@/lib/resend-activation.functions";
-import { checkEmailAllowed } from "@/lib/access-check.functions";
+import { checkEmailAllowed, checkEmailAccessStatus } from "@/lib/access-check.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +52,7 @@ function AuthPage() {
   const resendActivation = useServerFn(resendActivationEmail);
   const [resending, setResending] = useState(false);
   const verifyEmailAllowed = useServerFn(checkEmailAllowed);
+  const verifyEmailStatus = useServerFn(checkEmailAccessStatus);
 
 
   async function handleResendActivation() {
@@ -139,9 +140,31 @@ function AuthPage() {
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    if (!(await ensureAllowed(email))) {
+    let status: { allowed: boolean; hasAccount: boolean; confirmed: boolean };
+    try {
+      status = await verifyEmailStatus({ data: { email } });
+    } catch {
+      status = { allowed: false, hasAccount: false, confirmed: false };
+    }
+    if (!status.allowed) {
       setLoading(false);
       toast.error("Tài khoản không được phép truy cập", { description: NOT_ALLOWED_MSG });
+      return;
+    }
+    if (!status.hasAccount) {
+      setLoading(false);
+      toast.error("Email chưa có tài khoản đăng nhập", {
+        description:
+          "Email của bạn đã có trong danh sách khách hàng. Vui lòng chuyển sang tab “Tạo tài khoản” để đăng ký mật khẩu, sau đó kích hoạt qua email.",
+      });
+      return;
+    }
+    if (!status.confirmed) {
+      setLoading(false);
+      setUnconfirmed(true);
+      toast.error("Tài khoản chưa được kích hoạt", {
+        description: "Vui lòng mở email kích hoạt trước khi đăng nhập, hoặc bấm “Gửi lại”.",
+      });
       return;
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
