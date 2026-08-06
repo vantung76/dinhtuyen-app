@@ -52,6 +52,7 @@ function AuthPage() {
   const resendActivation = useServerFn(resendActivationEmail);
   const [resending, setResending] = useState(false);
   const verifyEmailAllowed = useServerFn(checkEmailAllowed);
+  const verifyEmailStatus = useServerFn(checkEmailAccessStatus);
 
 
   async function handleResendActivation() {
