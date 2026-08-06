@@ -9,3 +9,13 @@ export const checkEmailAllowed = createServerFn({ method: "POST" })
     const { isEmailAllowed } = await import("./access-check.server");
     return { allowed: await isEmailAllowed(data.email) };
   });
+
+export const checkEmailAccessStatus = createServerFn({ method: "POST" })
+  .inputValidator((data: { email: string }) => {
+    if (!data?.email) throw new Error("Thiếu địa chỉ email");
+    return data;
+  })
+  .handler(async ({ data }) => {
+    const { getEmailAccessStatus } = await import("./access-check.server");
+    return getEmailAccessStatus(data.email);
+  });
