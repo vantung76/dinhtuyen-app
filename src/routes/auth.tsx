@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { resendActivationEmail } from "@/lib/resend-activation.functions";
+import { checkEmailAllowed } from "@/lib/access-check.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
