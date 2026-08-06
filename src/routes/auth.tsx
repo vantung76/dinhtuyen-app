@@ -38,7 +38,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { session, isCustomer, rolesLoaded } = useAuth();
+  const { session, isStaff, rolesLoaded } = useAuth();
   
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -95,8 +95,8 @@ function AuthPage() {
 
   useEffect(() => {
     if (!session || !rolesLoaded) return;
-    void navigate({ to: isCustomer ? "/portal" : "/dashboard", replace: true });
-  }, [session, rolesLoaded, isCustomer, navigate]);
+    void navigate({ to: isStaff ? "/dashboard" : "/portal", replace: true });
+  }, [session, rolesLoaded, isStaff, navigate]);
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();

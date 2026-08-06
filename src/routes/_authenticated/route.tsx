@@ -56,7 +56,7 @@ function AuthenticatedLayout() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3 lg:flex lg:flex-nowrap">
-          <Link to={isCustomer ? "/portal" : "/dashboard"} className="flex min-w-0 items-center gap-2">
+          <Link to={isStaff ? "/dashboard" : "/portal"} className="flex min-w-0 items-center gap-2">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <Printer className="size-4" aria-hidden />
             </span>
@@ -67,7 +67,7 @@ function AuthenticatedLayout() {
             <div className="min-w-0 text-right leading-tight">
               <p className="truncate text-sm font-medium">{fullName}</p>
               <p className="text-xs text-sidebar-foreground/70">
-                {isCustomer ? "Khách hàng" : isAdmin ? "Quản trị viên" : "Nhân viên"}
+                {isAdmin ? "Quản trị viên" : isStaff ? "Nhân viên" : "Khách hàng"}
               </p>
             </div>
             <Button size="icon" variant="ghost" onClick={handleSignOut} aria-label="Đăng xuất">
@@ -76,7 +76,7 @@ function AuthenticatedLayout() {
           </div>
 
           <nav className="col-span-2 -mx-1 flex items-center gap-1 overflow-x-auto px-1 lg:order-2 lg:col-span-1 lg:mx-0 lg:flex-1 lg:overflow-visible">
-            {(!isCustomer
+            {(isStaff
               ? NAV.filter((n) => !("adminOnly" in n && n.adminOnly) || isAdmin)
               : []
             ).map((item) => (
