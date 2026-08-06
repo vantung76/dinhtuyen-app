@@ -51,6 +51,7 @@ function AuthPage() {
   const [sentReset, setSentReset] = useState(false);
   const resendActivation = useServerFn(resendActivationEmail);
   const [resending, setResending] = useState(false);
+  const verifyEmailAllowed = useServerFn(checkEmailAllowed);
 
 
   async function handleResendActivation() {
@@ -123,9 +124,26 @@ function AuthPage() {
     void navigate({ to: isStaff ? "/dashboard" : "/portal", replace: true });
   }
 
+  const NOT_ALLOWED_MSG =
+    "Email này chưa có trong hệ thống. Vui lòng liên hệ CTY DINHTUYEN (info@dinhtuyen.com) để được khai báo trước khi đăng nhập.";
+
+  async function ensureAllowed(target: string) {
+    try {
+      const res = await verifyEmailAllowed({ data: { email: target } });
+      return res.allowed;
+    } catch {
+      return false;
+    }
+  }
+
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    if (!(await ensureAllowed(email))) {
+      setLoading(false);
+      toast.error("Tài khoản không được phép truy cập", { description: NOT_ALLOWED_MSG });
+      return;
+    }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setLoading(false);
@@ -148,6 +166,11 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    if (!(await ensureAllowed(email))) {
+      setLoading(false);
+      toast.error("Không thể tạo tài khoản", { description: NOT_ALLOWED_MSG });
+      return;
+    }
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -171,6 +194,7 @@ function AuthPage() {
       () => undefined,
     );
   }
+
 
 
 
