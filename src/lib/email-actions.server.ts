@@ -173,6 +173,18 @@ export async function sendCustomerActivation(
   }
   if (!actionLink) throw new Error("Không tạo được liên kết kích hoạt");
 
+  // Bảo đảm tài khoản khách hàng luôn chỉ có vai trò "customer".
+  const invitedUserId = invite.data?.user?.id;
+  if (invitedUserId) {
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", invitedUserId);
+    await supabaseAdmin.from("user_roles").insert({ user_id: invitedUserId, role: "customer" });
+    await supabaseAdmin
+      .from("customers")
+      .update({ user_id: invitedUserId })
+      .eq("id", input.customerId)
+      .is("user_id", null);
+  }
+
   const { getCustomerMachineInfoById } = await import("./machine-info.server");
   const info = await getCustomerMachineInfoById(input.customerId);
   const { subject, html } = activationEmail({
