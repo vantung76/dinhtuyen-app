@@ -5,6 +5,9 @@ export async function resendActivation(input: { email: string; siteUrl?: string 
   const email = input.email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Email không hợp lệ");
 
+  const { isEmailAllowed } = await import("./access-check.server");
+  if (!(await isEmailAllowed(email))) return { sent: true };
+
   const base = getPublicSiteUrl();
   const redirectTo = base || undefined;
 
