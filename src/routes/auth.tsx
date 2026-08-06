@@ -198,7 +198,39 @@ function AuthPage() {
           </div>
         </div>
 
-        {sentConfirm ? (
+        {unconfirmed ? (
+          <div className="mt-6 space-y-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+            <p>
+              Tài khoản này <strong>chưa được kích hoạt</strong>. Vui lòng mở email kích hoạt rồi
+              đăng nhập lại.
+            </p>
+          </div>
+        ) : null}
+
+        {checkedSession && session && !sentConfirm ? (
+          <div className="mt-6 space-y-3 rounded-lg border border-border bg-muted p-4">
+            <p className="text-sm text-muted-foreground">
+              Bạn đang đăng nhập bằng <strong>{session.user.email}</strong>.
+            </p>
+            <div className="flex gap-2">
+              <Button type="button" className="flex-1" onClick={goToApp} disabled={!rolesLoaded}>
+                Tiếp tục
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={async () => {
+                  await signOut();
+                  setUnconfirmed(false);
+                }}
+              >
+                Đăng xuất
+              </Button>
+            </div>
+          </div>
+        ) : sentConfirm ? (
+
           <div className="mt-8 space-y-3 rounded-lg border border-border bg-muted p-4">
             <p className="text-sm text-muted-foreground">
               Chúng tôi đã gửi email xác nhận tới <strong>{email}</strong>. Vui lòng mở email và bấm
