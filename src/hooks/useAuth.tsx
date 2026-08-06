@@ -47,12 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const userId = session?.user.id;
 
   useEffect(() => {
+    setRolesLoaded(false);
     if (!userId) {
-      setRolesLoaded(false);
+      setRoles([]);
       return;
     }
     let active = true;
     void (async () => {
+
       const [rolesRes, profileRes] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", userId),
         supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
