@@ -36,9 +36,8 @@ export type ReminderInput = {
 };
 
 export function buildReminderMessage(input: ReminderInput): string {
-  const brand = input.machineBrand || input.machineName || "máy photocopy";
-  const serial = input.serialNumber || "(chưa cập nhật)";
-  return `Kính gửi quý khách hàng ${input.customerName}, công ty Định Tuyến xin thông báo: Hợp đồng trả góp máy photocopy ${brand} - Số seri: ${serial} của quý khách sẽ đến hạn thanh toán kỳ tiếp theo vào ngày ${formatDate(
+  const brand = [input.machineBrand?.trim(), input.machineName?.trim()].filter(Boolean).join(" ") || "máy photocopy";
+  return `Kính gửi quý khách hàng ${input.customerName}, công ty Định Tuyến xin thông báo: Hợp đồng trả góp máy photocopy ${brand} của quý khách sẽ đến hạn thanh toán kỳ tiếp theo vào ngày ${formatDate(
     input.dueDate,
   )}. Số tiền cần thanh toán là: ${formatNumber(input.monthlyAmount)}đ. Quý khách vui lòng thanh toán vào tài khoản:
 
@@ -48,7 +47,15 @@ Số TK : 11420177402010
 
 Ngân Hàng Techcombank – Chi Nhánh Chợ Lớn
 
-Hoặc nhân viên Định Tuyến sẽ qua thu nhé. Xin cảm ơn quý khách!`;
+Hoặc
+
+Chủ TK : TRỊNH VĂN TÙNG
+
+Số TK : 060073084965
+
+Ngân hàng TMCP Sài Gòn Tài Lộc (Sacombank cũ)
+
+Xin cảm ơn quý khách!`;
 }
 
 export async function copyText(text: string): Promise<boolean> {
