@@ -38,17 +38,20 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { session, isStaff, rolesLoaded } = useAuth();
-  
+  const { session, isStaff, rolesLoaded, signOut } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [sentConfirm, setSentConfirm] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [checkedSession, setCheckedSession] = useState(false);
   const sendWelcome = useServerFn(sendWelcomeEmail);
   const sendReset = useServerFn(requestPasswordReset);
   const [sentReset, setSentReset] = useState(false);
   const resendActivation = useServerFn(resendActivationEmail);
   const [resending, setResending] = useState(false);
+
 
   async function handleResendActivation() {
     if (!email.trim()) {
