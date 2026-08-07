@@ -47,16 +47,19 @@ function AuthenticatedLayout() {
 
 
   async function handleSignOut() {
-    // Ẩn nội dung trang trước khi xoá cache để tránh màn hình trắng do
-    // các truy vấn suspense bị huỷ giữa chừng.
     setSigningOut(true);
     try {
-      await queryClient.cancelQueries();
-      await signOut();
+      void queryClient.cancelQueries();
+      // Không để một yêu cầu đăng xuất bị kẹt giữ người dùng mãi ở màn hình
+      // “Đang tải…”. Phiên cục bộ đã được xoá ngay trong useAuth.
+      await Promise.race([
+        signOut(),
+        new Promise<void>((resolve) => window.setTimeout(resolve, 1500)),
+      ]);
     } finally {
       queryClient.clear();
-      await navigate({ to: "/auth", replace: true });
-      setSigningOut(false);
+      // Tải mới hoàn toàn để loại bỏ mọi trạng thái route/query cũ còn treo.
+      window.location.replace("/auth");
     }
   }
 
