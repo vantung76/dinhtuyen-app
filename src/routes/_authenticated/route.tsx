@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut, Printer, Users, FileSpreadsheet, Boxes, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,33 +24,42 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    if (!loading && !session) void navigate({ to: "/auth", replace: true });
-  }, [loading, session, navigate]);
+    if (!signingOut && !loading && !session) void navigate({ to: "/auth", replace: true });
+  }, [loading, session, navigate, signingOut]);
 
   useEffect(() => {
     const allowed = pathname === "/portal" || pathname === "/access";
-    if (rolesLoaded && !isStaff && !allowed) {
+    if (!signingOut && rolesLoaded && !isStaff && !allowed) {
       void navigate({ to: "/portal", replace: true });
     }
-  }, [rolesLoaded, isStaff, pathname, navigate]);
+  }, [rolesLoaded, isStaff, pathname, navigate, signingOut]);
 
-  if (loading || !session || !rolesLoaded) {
+  if (signingOut || loading || !session || !rolesLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-        Đang tải…
+        {signingOut ? "Đang đăng xuất…" : "Đang tải…"}
       </div>
     );
   }
 
 
   async function handleSignOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await signOut();
-    void navigate({ to: "/auth", replace: true });
+    // Ẩn nội dung trang trước khi xoá cache để tránh màn hình trắng do
+    // các truy vấn suspense bị huỷ giữa chừng.
+    setSigningOut(true);
+    try {
+      await queryClient.cancelQueries();
+      await signOut();
+    } finally {
+      queryClient.clear();
+      await navigate({ to: "/auth", replace: true });
+      setSigningOut(false);
+    }
   }
+
 
   return (
     <div className="min-h-screen bg-background">
