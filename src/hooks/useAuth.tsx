@@ -50,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRolesLoaded(false);
     if (!userId) {
       setRoles([]);
+      setRolesLoaded(true);
       return;
     }
     let active = true;
@@ -85,7 +86,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fullName: fullName || (session?.user.email ?? ""),
       loading,
       signOut: async () => {
-        await supabase.auth.signOut();
+        // Cập nhật giao diện ngay, không để layout chờ một yêu cầu đăng xuất
+        // qua mạng có thể bị treo trên một số trình duyệt.
+        setSession(null);
+        setRoles([]);
+        setFullName("");
+        setRolesLoaded(true);
+        setLoading(false);
+        await supabase.auth.signOut({ scope: "local" });
       },
     };
   }, [session, roles, rolesLoaded, fullName, loading]);
