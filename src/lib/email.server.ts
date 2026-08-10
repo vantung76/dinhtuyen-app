@@ -150,9 +150,8 @@ export function activationEmail(input: {
   return {
     subject: isFullPayment
       ? `Kích hoạt bảo hành máy photocopy ${machine}`.trim()
-      : machine
-        ? `Kích hoạt tài khoản tra cứu hợp đồng máy photocopy ${machine}`
-        : "Kích hoạt tài khoản tra cứu hợp đồng máy photocopy.",
+      : "Kích hoạt tài khoản khách hàng",
+
     html: layout(headline, inner),
   };
 }

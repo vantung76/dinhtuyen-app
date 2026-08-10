@@ -8,6 +8,7 @@ import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { resendActivationEmail } from "@/lib/resend-activation.functions";
 import { checkEmailAllowed, checkEmailAccessStatus } from "@/lib/access-check.functions";
+import { registerCustomerAccount } from "@/lib/signup.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,8 @@ function AuthPage() {
   const [resending, setResending] = useState(false);
   const verifyEmailAllowed = useServerFn(checkEmailAllowed);
   const verifyEmailStatus = useServerFn(checkEmailAccessStatus);
+  const registerAccount = useServerFn(registerCustomerAccount);
+
 
 
   async function handleResendActivation() {
@@ -194,29 +197,21 @@ function AuthPage() {
       toast.error("Không thể tạo tài khoản", { description: NOT_ALLOWED_MSG });
       return;
     }
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: email.split("@")[0], account_type: "customer" },
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Tạo tài khoản thất bại", { description: error.message });
-      return;
-    }
-    if (!data.session) {
+    try {
+      await registerAccount({ data: { email, password } });
       setSentConfirm(true);
-      toast.success("Hãy kiểm tra email để xác nhận tài khoản");
-      return;
+      toast.success("Đã gửi email kích hoạt", {
+        description: "Vui lòng mở email “Kích hoạt tài khoản khách hàng” để kích hoạt.",
+      });
+    } catch (err) {
+      toast.error("Tạo tài khoản thất bại", {
+        description: err instanceof Error ? err.message : "Vui lòng thử lại.",
+      });
+    } finally {
+      setLoading(false);
     }
-    toast.success("Tạo tài khoản thành công");
-    void sendWelcome({ data: { email, fullName: email.split("@")[0] ?? email, siteUrl: window.location.origin } }).catch(
-      () => undefined,
-    );
   }
+
 
 
 
