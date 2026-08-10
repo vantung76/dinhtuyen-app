@@ -1,3 +1,4 @@
+import { todayISO } from "@/lib/format";
 export type SheetColumn<T> = {
   header: string;
   value: (row: T) => string | number | null | undefined;
@@ -75,6 +76,6 @@ export async function exportExcel(
 
 /** Hậu tố ngày cho tên file: 05_08_2026 */
 export function fileDateSuffix(d: Date = new Date()): string {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${p(d.getDate())}_${p(d.getMonth() + 1)}_${d.getFullYear()}`;
+  const [y, m, day] = todayISO(d).split("-");
+  return `${day}_${m}_${y}`;
 }

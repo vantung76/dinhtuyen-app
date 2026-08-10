@@ -81,7 +81,7 @@ export async function exportCustomerBackup(customer: Customer): Promise<number> 
       { k: "Còn nợ", v: totalRemaining },
     );
   }
-  infoRows.push({ k: "Thời điểm xuất dữ liệu", v: new Date().toLocaleString("vi-VN") });
+  infoRows.push({ k: "Thời điểm xuất dữ liệu", v: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Bangkok" }) });
 
   const contractColumns = [
     { header: "Mã hợp đồng", value: (c: ContractSummary) => c.code },

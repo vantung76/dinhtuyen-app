@@ -14,11 +14,36 @@ export function formatNumber(value: number | string | null | undefined): string 
   return new Intl.NumberFormat("vi-VN").format(Number.isFinite(n) ? n : 0);
 }
 
+/** Múi giờ hệ thống: (UTC+07:00) Bangkok, Hà Nội, Jakarta */
+export const APP_TIME_ZONE = "Asia/Bangkok";
+
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return d.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: APP_TIME_ZONE,
+  });
+}
+
+export function formatDateTime(value: string | Date | null | undefined): string {
+  if (!value) return "—";
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString("vi-VN", { timeZone: APP_TIME_ZONE });
+}
+
+/** Ngày hôm nay (yyyy-mm-dd) theo giờ Việt Nam */
+export function todayISO(d: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: APP_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
 }
 
 export const CONTRACT_STATUS_LABEL: Record<string, string> = {
@@ -53,10 +78,7 @@ export function monthlyPayment(
 }
 
 export function makeCode(prefix: string): string {
-  const now = new Date();
-  const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(
-    now.getDate(),
-  ).padStart(2, "0")}`;
+  const stamp = todayISO().replace(/-/g, "");
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `${prefix}-${stamp}-${rand}`;
 }

@@ -1,3 +1,4 @@
+import { todayISO } from "@/lib/format";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -38,7 +39,7 @@ export function ContractFormDialog({ trigger }: { trigger: React.ReactNode }) {
   const [downPayment, setDownPayment] = useState("0");
   const [months, setMonths] = useState("12");
   const [interestRate, setInterestRate] = useState("0");
-  const [startDate, setStartDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(() => todayISO());
   const [note, setNote] = useState("");
 
   const { data: customers = [] } = useQuery({

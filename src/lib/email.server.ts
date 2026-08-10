@@ -46,7 +46,7 @@ const money = (value: number) =>
 const day = (value: string | null | undefined) => {
   if (!value) return "—";
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("vi-VN");
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("vi-VN", { timeZone: "Asia/Bangkok" });
 };
 
 const escapeHtml = (value: string) =>

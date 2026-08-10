@@ -203,7 +203,7 @@ export async function exportFullBackup(): Promise<number> {
       {
         name: "Thông tin backup",
         rows: [
-          { k: "Thời điểm xuất", v: new Date().toLocaleString("vi-VN") },
+          { k: "Thời điểm xuất", v: new Date().toLocaleString("vi-VN", { timeZone: "Asia/Bangkok" }) },
           { k: "Số khách hàng", v: String(customers.length) },
           { k: "Số hợp đồng", v: String(contracts.length) },
           { k: "Số phiếu thu", v: String(payments.length) },
