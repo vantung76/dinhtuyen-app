@@ -8,6 +8,7 @@ import { sendWelcomeEmail } from "@/lib/email.functions";
 import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { resendActivationEmail } from "@/lib/resend-activation.functions";
 import { checkEmailAllowed, checkEmailAccessStatus } from "@/lib/access-check.functions";
+import { registerCustomerAccount } from "@/lib/signup.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,8 @@ function AuthPage() {
   const [resending, setResending] = useState(false);
   const verifyEmailAllowed = useServerFn(checkEmailAllowed);
   const verifyEmailStatus = useServerFn(checkEmailAccessStatus);
+  const registerAccount = useServerFn(registerCustomerAccount);
+
 
 
   async function handleResendActivation() {
