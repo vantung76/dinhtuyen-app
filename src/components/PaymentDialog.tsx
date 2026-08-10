@@ -1,3 +1,4 @@
+import { todayISO } from "@/lib/format";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -42,7 +43,7 @@ export function PaymentDialog({
   const sendReceipt = useServerFn(sendPaymentReceipt);
 
   const [amount, setAmount] = useState(String(Math.round(Number(contract.monthly_payment))));
-  const [paidAt, setPaidAt] = useState(() => new Date().toISOString().slice(0, 10));
+  const [paidAt, setPaidAt] = useState(() => todayISO());
   const [method, setMethod] = useState<PaymentMethod>("tien_mat");
   const [note, setNote] = useState("");
   const [notify, setNotify] = useState(true);
